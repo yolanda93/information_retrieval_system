@@ -6,7 +6,17 @@ To build this system, it is provided a plain text MED.ALL that contains many doc
 
 For this system is created at least 3 different versions using different weights for building the vectors representing documents and queries.
 
-The program supplies an entry point to enable the user to launch queries to the system
+The program supplies an entry point to enable the user to launch queries to the system.
+
+
+Methods used to build the vectors:
+
+(1) Boolean Model
+
+(2) TF weights
+
+(3) TF-IDF weights
+
 
 ### Usage:
 
