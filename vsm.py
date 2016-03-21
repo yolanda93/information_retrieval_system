@@ -5,6 +5,7 @@ from nltk.stem import PorterStemmer
 from gensim import corpora, models, similarities
 from operator import itemgetter
 
+
 sample_corpus = [
     "Human machine interface for lab abc computer applications",
     "A survey of user opinion of computer system response time",
@@ -35,7 +36,7 @@ def create_dictionary(docs):
 
 
 def get_keyword_to_id_mapping(dictionary):
-    print dictionary.token2id
+    print (dictionary.token2id)
 
 
 def docs2bows(corpus, dictionary):
@@ -63,4 +64,4 @@ def launch_query(corpus, q):
     sim = index[qtfidf]
     ranking = sorted(enumerate(sim), key=itemgetter(1), reverse=True)
     for doc, score in ranking:
-        print "[ Score = " + "%.3f" % round(score, 3) + "] " + corpus[doc];
+        print ("[ Score = " + "%.3f" % round(score, 3) + "] " + corpus[doc]);
