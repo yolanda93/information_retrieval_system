@@ -11,24 +11,20 @@ from nltk.stem import PorterStemmer
 from gensim import corpora, models, similarities
 from operator import itemgetter
 
-sample_corpus = [
-    "Human machine interface for lab abc computer applications",
-    "A survey of user opinion of computer system response time",
-    "The EPS user interface management system",
-    "System and human system engineering testing of EPS",
-    "Relation of user perceived response time to error measurement",
-    "The generation of random binary unordered trees",
-    "The intersection graph of paths in trees",
-    "Graph minors IV Widths of trees and well quasi ordering",
-    "Graph minors A survey"
-]
-
 ###################################################################################
 ## @class   InformationRetrievalSystem
-#  @brief   This class represents the InformationRetrievalSystem, i.e., basic methods used to
-#           preprocess and rank documents according to user queries.
+#  @brief   This class represents the InformationRetrievalSystem, i.e., basic methods 
+#           used to preprocess and rank documents according to user queries.
 ###################################################################################
-class InformationRetrievalSystem(object):
+class InformationRetrievalSystem():
+    
+    #################################################################################
+    ## @brief   Constructor
+    #  @details This method initializes the class with the parameters introduced by 
+    #           the user and execute the query. 
+    #################################################################################    
+    def __init__(self):
+        print("constructor")
 
 
     #################################################################################
@@ -39,7 +35,7 @@ class InformationRetrievalSystem(object):
     def preprocess_document(doc):
         stopset = set(stopwords.words('english'))
         stemmer = PorterStemmer()
-        tokens = wordpunct_tokenize(doc)
+        tokens = wordpunct_tokenize(doc) # split text on whitespace and punctuation
         clean = [token.lower() for token in tokens if token.lower() not in stopset and len(token) > 2]
         final = [stemmer.stem(word) for word in clean]
         return final
@@ -64,7 +60,6 @@ class InformationRetrievalSystem(object):
     def get_keyword_to_id_mapping(dictionary):
         print (dictionary.token2id)
 
-
     #################################################################################
     ## @brief   docs2bows
     #  @details This method converts document (a list of words) into the bag-of-words
@@ -81,13 +76,13 @@ class InformationRetrievalSystem(object):
 
     #################################################################################
     ## @brief   create_TF_IDF_model
-    #  @details This method creates the TF IDF model to build the vector.
+    #  @details This method creates a weighted TF_IDF matrix to build the vector.
     #  @param   corpus Set of documents to be processed.
     #################################################################################    
     def create_TF_IDF_model(corpus):
         dictionary = create_dictionary(corpus)
         docs2bows(corpus, dictionary)
-        loaded_corpus = corpora.MmCorpus('/tmp/vsm_docs.mm')
+        loaded_corpus = corpora.MmCorpus('/tmp/vsm_docs.mm') # Recover the corpus
         tfidf = models.TfidfModel(loaded_corpus)
         return tfidf, dictionary
 
@@ -112,9 +107,15 @@ class InformationRetrievalSystem(object):
             print ("[ Score = " + "%.3f" % round(score, 3) + "] " + corpus[doc]);
 
 
-    #################################################################################
-    ## @brief   Constructor
-    #  @details This method initializes the class with the parameters introduced by the user
-    #           and execute the query. 
-    #################################################################################    
-    def __init__(self):
+
+####################################################################################################################### 
+## @brief The main function that enables the user to launch queries
+####################################################################################################################### 
+if __name__ == '__main__':
+    
+      corpus_path = raw_input("Enter the corpus path: ") 
+      query_input = raw_input("Write a query or provide a document with a set of queries: ") 
+      if(open(query_input, 'r'))
+
+      ir = InformationRetrievalSystem()
+      print("object created")
