@@ -10,6 +10,7 @@ from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from gensim import corpora, models, similarities
 from operator import itemgetter
+import re
 
 ###################################################################################
 ## @class   InformationRetrievalSystem
@@ -107,15 +108,40 @@ class InformationRetrievalSystem():
             print ("[ Score = " + "%.3f" % round(score, 3) + "] " + corpus[doc]);
 
 
+    #################################################################################
+    ## @brief   preprocess_input
+    #  @details This method reads user input and transform it into a list
+    #  @param   user_input The input given by the user
+    #################################################################################  
+    def preprocess_userinput(user_input):
+       if "/" or "\\" in user_input: # the user has provided a file path with a set of texts
+         print("it is a document path")
+         try:
+             list_texts = re.split(".I \d*\n.W\n",open(query_input).read())[1:] # Split text file with the delimiter, erase first delimiter
+             return list_texts
+         except IOError:
+              print query_input + " - No such file or directory"
+       return user_input # the user has provided a query or a text
+
 
 ####################################################################################################################### 
 ## @brief The main function that enables the user to launch queries
 ####################################################################################################################### 
 if __name__ == '__main__':
     
-      corpus_path = raw_input("Enter the corpus path: ") 
-      query_input = raw_input("Write a query or provide a document with a set of queries: ") 
-      if(open(query_input, 'r'))
+      corpus_path = raw_input("Write a text or enter the corpus path: ") 
+      query_input = raw_input("Write a query or enter a document path with a set of queries: ") 
+
+      corpus_text=preprocess_userinput(corpus_path)
+      query_text=preprocess_userinput(query_input)
 
       ir = InformationRetrievalSystem()
-      print("object created")
+
+    
+        
+        
+             
+
+
+      
+
