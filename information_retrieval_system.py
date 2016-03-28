@@ -11,6 +11,7 @@ from nltk.stem import PorterStemmer
 from gensim import corpora, models, similarities
 from operator import itemgetter
 import re
+import sys
 
 ###################################################################################
 ## @class   InformationRetrievalSystem
@@ -33,7 +34,7 @@ class InformationRetrievalSystem():
     #  @details This method return the taxonomy of keywords for the given document.
     #  @param   doc The document to be preprocessed
     #################################################################################    
-    def preprocess_document(doc):
+    def preprocess_document(self,doc):
         stopset = set(stopwords.words('english'))
         stemmer = PorterStemmer()
         tokens = wordpunct_tokenize(doc) # split text on whitespace and punctuation
@@ -47,10 +48,10 @@ class InformationRetrievalSystem():
     #  @details This method creates a dictionary based on the taxonomy of keywords for each document.
     #  @param   docs The documents to be preprocessed
     #################################################################################    
-    def create_dictionary(docs):
-        pdocs = [preprocess_document(doc) for doc in docs]
+    def create_dictionary(self,docs):
+        pdocs = [self.preprocess_document(doc) for doc in docs]
         dictionary = corpora.Dictionary(pdocs)
-        dictionary.save('/tmp/vsm.dict')
+        dictionary.save('vsm.dict')
         return dictionary
 
     #################################################################################
@@ -58,7 +59,7 @@ class InformationRetrievalSystem():
     #  @details This method prints the tokens id (word counts) for the given dictionary.
     #  @param   dictionary The dictionary with the documents keywords.
     #################################################################################    
-    def get_keyword_to_id_mapping(dictionary):
+    def get_keyword_to_id_mapping(self,dictionary):
         print (dictionary.token2id)
 
     #################################################################################
@@ -68,10 +69,10 @@ class InformationRetrievalSystem():
     #  @param   corpus Set of documents to be processed.
     #  @param   dictionary The dictionary with the documents keywords.
     #################################################################################    
-    def docs2bows(corpus, dictionary):
-        docs = [preprocess_document(d) for d in corpus]
+    def docs2bows(self,corpus, dictionary):
+        docs = [self.preprocess_document(d) for d in corpus]
         vectors = [dictionary.doc2bow(doc) for doc in docs]
-        corpora.MmCorpus.serialize('/tmp/vsm_docs.mm', vectors) # Save the corpus in the Matrix Market format
+        corpora.MmCorpus.serialize('vsm_docs.mm', vectors) # Save the corpus in the Matrix Market format
         return vectors
 
 
@@ -80,10 +81,10 @@ class InformationRetrievalSystem():
     #  @details This method creates a weighted TF_IDF matrix to build the vector.
     #  @param   corpus Set of documents to be processed.
     #################################################################################    
-    def create_TF_IDF_model(corpus):
-        dictionary = create_dictionary(corpus)
-        docs2bows(corpus, dictionary)
-        loaded_corpus = corpora.MmCorpus('/tmp/vsm_docs.mm') # Recover the corpus
+    def create_TF_IDF_model(self,corpus):
+        dictionary = self.create_dictionary(corpus)
+        self.docs2bows(corpus, dictionary)
+        loaded_corpus = corpora.MmCorpus('vsm_docs.mm') # Recover the corpus
         tfidf = models.TfidfModel(loaded_corpus)
         return tfidf, dictionary
 
@@ -95,11 +96,11 @@ class InformationRetrievalSystem():
     #  @param   corpus Set of documents to be processed.
     #  @param   q Query, a document with the set of relevance words to the user.
     #################################################################################    
-    def launch_query(corpus, q):
-        tfidf, dictionary = create_TF_IDF_model(corpus)
-        loaded_corpus = corpora.MmCorpus('/tmp/vsm_docs.mm')
+    def launch_query(self,corpus, q):
+        tfidf, dictionary = self.create_TF_IDF_model(corpus)
+        loaded_corpus = corpora.MmCorpus('vsm_docs.mm')
         index = similarities.MatrixSimilarity(loaded_corpus, num_features=len(dictionary))
-        pq = preprocess_document(q)
+        pq = self.preprocess_document(q)
         vq = dictionary.doc2bow(pq)
         qtfidf = tfidf[vq]
         sim = index[qtfidf]
@@ -113,15 +114,15 @@ class InformationRetrievalSystem():
     #  @details This method reads user input and transform it into a list
     #  @param   user_input The input given by the user
     #################################################################################  
-    def preprocess_userinput(user_input):
-       if "/" or "\\" in user_input: # the user has provided a file path with a set of texts
-         print("it is a document path")
-         try:
-             list_texts = re.split(".I \d*\n.W\n",open(query_input).read())[1:] # Split text file with the delimiter, erase first delimiter
-             return list_texts
-         except IOError:
-              print query_input + " - No such file or directory"
-       return user_input # the user has provided a query or a text
+    def preprocess_userinput(self,user_input):
+        if "/" or "\\" in user_input: # the user has provided a file path with a set of texts
+            try:
+               list_texts = re.split(".I \d*\n.W\n",open(user_input).read())[1:] # Split text file with the delimiter, erase first delimiter
+               return list_texts
+            except IOError:
+               print query_input + " - No such file or directory"
+               sys.exit(1)
+        return user_input # the user has provided a query or a text    
 
 
 ####################################################################################################################### 
@@ -129,13 +130,16 @@ class InformationRetrievalSystem():
 ####################################################################################################################### 
 if __name__ == '__main__':
     
-      corpus_path = raw_input("Write a text or enter the corpus path: ") 
+      corpus_input = raw_input("Write a text or enter the corpus path: ") 
       query_input = raw_input("Write a query or enter a document path with a set of queries: ") 
 
-      corpus_text=preprocess_userinput(corpus_path)
-      query_text=preprocess_userinput(query_input)
-
       ir = InformationRetrievalSystem()
+      corpus_text=ir.preprocess_userinput(corpus_input)
+      query_text=ir.preprocess_userinput(query_input)
+
+      for q in query_text:
+          ir.launch_query(corpus_text,q)
+
 
     
         
