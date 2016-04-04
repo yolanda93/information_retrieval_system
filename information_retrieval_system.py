@@ -71,7 +71,7 @@ class InformationRetrievalSystem():
     #################################################################################    
     def docs2bows(self,corpus, dictionary):
         docs = [self.preprocess_document(d) for d in corpus]
-        vectors = [dictionary.doc2bow(doc) for doc in docs]
+        vectors = [dictionary.doc2bow(doc) for doc in docs] # each vector is an histogram of terms of document
         corpora.MmCorpus.serialize('vsm_docs.mm', vectors) # Save the corpus in the Matrix Market format
         return vectors
 
@@ -103,9 +103,9 @@ class InformationRetrievalSystem():
         pq = self.preprocess_document(q)
         vq = dictionary.doc2bow(pq)
         qtfidf = tfidf[vq]
-        sim = index[qtfidf]
-        ranking = sorted(enumerate(sim), key=itemgetter(1), reverse=True)
-        for doc, score in ranking:
+        sim = index[qtfidf] # get similarities between the query and all index documents
+        ranking = sorted(enumerate(sim), key=itemgetter(1), reverse=True) # Documents most similar to the query are arranged first 
+        for doc, score in ranking: 
             print ("[ Score = " + "%.3f" % round(score, 3) + "] " + corpus[doc]);
 
 
