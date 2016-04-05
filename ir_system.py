@@ -1,32 +1,32 @@
-#!/usr/bin/python
 ###################################################################################
 ## @file      information_retrieval_system.py
 #  @brief     The information_retrieval_system.py is a basic information retrieval system  
 #             implemented using Python, NLTK and GenSIM.
-#  @authors   Yolanda de la Hoz Simón
+#  @authors   Yolanda de la Hoz Simon
 ###################################################################################
 from nltk.tokenize import wordpunct_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from gensim import corpora, models, similarities
 from operator import itemgetter
-import re
-import sys
+import abc
 
 ###################################################################################
 ## @class   InformationRetrievalSystem
 #  @brief   This class represents the InformationRetrievalSystem, i.e., basic methods 
 #           used to preprocess and rank documents according to user queries.
 ###################################################################################
-class InformationRetrievalSystem():
+class IRSystem(object):
     
     #################################################################################
     ## @brief   Constructor
     #  @details This method initializes the class with the parameters introduced by 
     #           the user and execute the query. 
     #################################################################################    
-    def __init__(self):
-        print("constructor")
+    def __init__(self, corpus, queries):
+        __metaclass__ = abc.ABCMeta
+        self.corpus=corpus
+        self.queries=queries
 
 
     #################################################################################
@@ -52,7 +52,7 @@ class InformationRetrievalSystem():
         pdocs = [self.preprocess_document(doc) for doc in docs]
         dictionary = corpora.Dictionary(pdocs)
         dictionary.save('vsm.dict')
-        return dictionary
+        return dictionary,pdocs
 
     #################################################################################
     ## @brief   get_keyword_to_id_mapping
@@ -69,9 +69,8 @@ class InformationRetrievalSystem():
     #  @param   corpus Set of documents to be processed.
     #  @param   dictionary The dictionary with the documents keywords.
     #################################################################################    
-    def docs2bows(self,corpus, dictionary):
-        docs = [self.preprocess_document(d) for d in corpus]
-        vectors = [dictionary.doc2bow(doc) for doc in docs] # each vector is an histogram of terms of document
+    def docs2bows(self,corpus, dictionary, pdocs):
+        vectors = [dictionary.doc2bow(doc) for doc in pdocs]
         corpora.MmCorpus.serialize('vsm_docs.mm', vectors) # Save the corpus in the Matrix Market format
         return vectors
 
@@ -80,14 +79,30 @@ class InformationRetrievalSystem():
     ## @brief   create_TF_IDF_model
     #  @details This method creates a weighted TF_IDF matrix to build the vector.
     #  @param   corpus Set of documents to be processed.
-    #################################################################################    
-    def create_TF_IDF_model(self,corpus):
-        dictionary = self.create_dictionary(corpus)
-        self.docs2bows(corpus, dictionary)
-        loaded_corpus = corpora.MmCorpus('vsm_docs.mm') # Recover the corpus
-        tfidf = models.TfidfModel(loaded_corpus)
-        return tfidf, dictionary
+    #################################################################################  
+    @abc.abstractmethod  
+    def create_documents_view(self,corpus):
+        return
 
+    #################################################################################
+    ## @brief   create_TF_IDF_model
+    #  @details This method creates a weighted TF_IDF matrix to build the vector.
+    #  @param   corpus Set of documents to be processed.
+    #################################################################################  
+    @abc.abstractmethod  
+    def create_query_view(self,query):
+        return
+
+    #################################################################################
+    ## @brief   ranking_function
+    #  @details This method initializes the class with the parameters introduced by the user
+    #           and execute the query. 
+    #  @param   corpus Set of documents to be processed.
+    #  @param   q Query, a document with the set of relevance words to the user.
+    #################################################################################   
+    @abc.abstractmethod 
+    def ranking_function(self,corpus, q):
+        return
 
     #################################################################################
     ## @brief   launch_query
@@ -95,50 +110,75 @@ class InformationRetrievalSystem():
     #           and execute the query. 
     #  @param   corpus Set of documents to be processed.
     #  @param   q Query, a document with the set of relevance words to the user.
-    #################################################################################    
+    #################################################################################   
+    @abc.abstractmethod 
     def launch_query(self,corpus, q):
-        tfidf, dictionary = self.create_TF_IDF_model(corpus)
+        return
+
+class IR_tf_idf(IRSystem):
+
+    def __init__(self,corpus,queries):
+        IRSystem.__init__(self,corpus,queries)
+        print("\n--------------------------Executing TF IDF information retrieval model--------------------------\n")
+        # launch queries
+        for q in queries:
+          self.ranking_function(corpus,q)
+
+    def create_documents_view(self,corpus):
+        dictionary,pdocs = self.create_dictionary(corpus)
+        self.docs2bows(corpus, dictionary,pdocs)
+        loaded_corpus = corpora.MmCorpus('vsm_docs.mm') # Recover the corpus
+        tfidf = models.TfidfModel(loaded_corpus)
+        return tfidf, dictionary
+
+    def create_query_view(self,query,dictionary):
+        pq = self.preprocess_document(query)
+        vq = dictionary.doc2bow(pq)
+        return vq
+
+    def ranking_function(self,corpus, q):
+        tfidf, dictionary = self.create_documents_view(corpus)
         loaded_corpus = corpora.MmCorpus('vsm_docs.mm')
         index = similarities.MatrixSimilarity(loaded_corpus, num_features=len(dictionary))
-        pq = self.preprocess_document(q)
-        vq = dictionary.doc2bow(pq)
+        vq=self.create_query_view(q,dictionary)
         qtfidf = tfidf[vq]
-        sim = index[qtfidf] # get similarities between the query and all index documents
-        ranking = sorted(enumerate(sim), key=itemgetter(1), reverse=True) # Documents most similar to the query are arranged first 
-        for doc, score in ranking: 
+        sim = index[qtfidf]
+        ranking = sorted(enumerate(sim), key=itemgetter(1), reverse=True)
+        for doc, score in ranking:
             print ("[ Score = " + "%.3f" % round(score, 3) + "] " + corpus[doc]);
 
+class IRBoolean(IRSystem):
 
-    #################################################################################
-    ## @brief   preprocess_input
-    #  @details This method reads user input and transform it into a list
-    #  @param   user_input The input given by the user
-    #################################################################################  
-    def preprocess_userinput(self,user_input):
-        if "/" or "\\" in user_input: # the user has provided a file path with a set of texts
-            try:
-               list_texts = re.split(".I \d*\n.W\n",open(user_input).read())[1:] # Split text file with the delimiter, erase first delimiter
-               return list_texts
-            except IOError:
-               print query_input + " - No such file or directory"
-               sys.exit(1)
-        return user_input # the user has provided a query or a text    
+    def __init__(self,corpus,queries):
+        IRSystem.__init__(self,corpus,queries)
+        print("\n--------------------------Executing Boolean information retrieval model--------------------------\n")
+        print("Not implemented yet")
+   
+    def create_documents_view(self,corpus):
+        """Not implemented yet"""
+
+    def create_query_view(self,query):
+        """Not implemented yet"""
+
+    def ranking_function(self,corpus, q):
+        """Not implemented yet"""
 
 
-####################################################################################################################### 
-## @brief The main function that enables the user to launch queries
-####################################################################################################################### 
-if __name__ == '__main__':
-    
-      corpus_input = raw_input("Write a text or enter the corpus path: ") 
-      query_input = raw_input("Write a query or enter a document path with a set of queries: ") 
+class IR_tf(IRSystem):
 
-      ir = InformationRetrievalSystem()
-      corpus_text=ir.preprocess_userinput(corpus_input)
-      query_text=ir.preprocess_userinput(query_input)
+    def __init__(self,corpus,queries):
+        IRSystem.__init__(self,corpus,queries)
+        print("\n--------------------------Executing TF information retrieval model--------------------------\n")
+        print("Not implemented yet")
+   
+    def create_model(self,corpus):
+        """Not implemented yet"""
 
-      for q in query_text:
-          ir.launch_query(corpus_text,q)
+    def create_query_view(self,query):
+        """Not implemented yet"""
+
+    def ranking_function(self,corpus, q):
+        """Not implemented yet"""
 
 
     
