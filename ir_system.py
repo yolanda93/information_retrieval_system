@@ -166,20 +166,34 @@ class IRBoolean(IRSystem):
 
 class IR_tf(IRSystem):
 
-    def __init__(self,corpus,queries):
+ def __init__(self,corpus,queries):
         IRSystem.__init__(self,corpus,queries)
         print("\n--------------------------Executing TF information retrieval model--------------------------\n")
-        print("Not implemented yet")
-   
-    def create_model(self,corpus):
-        """Not implemented yet"""
+        # launch queries
+        for q in queries:
+          self.ranking_function(corpus,q)
 
-    def create_query_view(self,query):
-        """Not implemented yet"""
+ def create_documents_view(self,corpus):
+        dictionary,pdocs = self.create_dictionary(corpus)
+        self.docs2bows(corpus, dictionary,pdocs)
+        tf = corpora.MmCorpus('vsm_docs.mm') # Recover the corpus
+        return tf, dictionary
 
-    def ranking_function(self,corpus, q):
-        """Not implemented yet"""
+ def create_query_view(self,query,dictionary):
+        pq = self.preprocess_document(query)
+        vq = dictionary.doc2bow(pq)
+        return vq
 
+ def ranking_function(self,corpus, q):
+        tf, dictionary = self.create_documents_view(corpus)
+        loaded_corpus = corpora.MmCorpus('vsm_docs.mm')
+        index = similarities.MatrixSimilarity(loaded_corpus, num_features=len(dictionary))
+        vq=self.create_query_view(q,dictionary)
+        qtf = tf[vq]
+        sim = index[qtf.slice_]
+        ranking = sorted(enumerate(sim), key=itemgetter(1), reverse=True)
+        for doc, score in ranking:
+            print ("[ Score = " + "%.3f" % round(score, 3) + "] " + corpus[doc]);
 
     
         
