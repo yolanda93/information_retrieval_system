@@ -152,18 +152,28 @@ class IRBoolean(IRSystem):
     def __init__(self,corpus,queries):
         IRSystem.__init__(self,corpus,queries)
         print("\n--------------------------Executing Boolean information retrieval model--------------------------\n")
-        print("Not implemented yet")
-   
-    def create_documents_view(self,corpus):
-        """Not implemented yet"""
+        # launch queries
+        for q in queries:
+          self.ranking_function(corpus,q)
 
-    def create_query_view(self,query):
-        """Not implemented yet"""
+    def create_documents_view(self,corpus):
+        dictionary,pdocs = self.create_dictionary(corpus)
+        return dictionary, pdocs
+
+    def create_query_view(self,query,dictionary):
+        pq = self.preprocess_document(query)
+        return pq
 
     def ranking_function(self,corpus, q):
-        """Not implemented yet"""
+        dictionary,pdocs = self.create_documents_view(corpus)
+        vq=self.create_query_view(q,dictionary)
+        for doc in pdocs:
+            intersection_list = list(set(doc) & set(vq))
+            if len(intersection_list)==len(vq):
+               print("The document matches queries with only AND operator")
+             
 
-
+              
 class IR_tf(IRSystem):
 
  def __init__(self,corpus,queries):
