@@ -38,7 +38,7 @@ The Standard Boolean Model is most adopted information retrieval model and it is
 
 In order to implement this model it is used classical set theory. Therefore, the text is divided into phrases and then it is searched whithin each frase to find or operators.
 
-Steps:
+**Algorithm steps**
   0. Check if there are or operators. if not goto 5.
   1. The query text is splitted into phrases based on "." tokens. These tokens are translated into an AND operator set
   2. For each phrase is searched the "or" token and splitted again. These tokens are translated into an OR operator set
@@ -47,11 +47,11 @@ Steps:
   5. Execute the query and append documents to the final result if they dont exist already.
   
 
-Example queries:
+**Example queries**
 
    "blood or urinary steroids in human breast or prostatic neoplasms."
    
-Algorithm result:
+**Algorithm result**
 
 (1) S; S =  " blood or urinary steroids in human breast or prostatic neoplasms."; lenght of AND_operator_set == 1
 (2) S = AvBvC; A = "blood", B = "urinary steroids in human breast", C = "prostatic neoplasms."
