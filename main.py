@@ -1,7 +1,7 @@
 #!/usr/bin/python
-import ir_system
-import re
+import ir_system    
 import sys
+import re
 
 #################################################################################
 ## @brief   preprocess_input
@@ -26,7 +26,6 @@ def preprocess_userinput(user_input):
 #################################################################################  
 def create_ir_system(irmodel_choice,corpus,query):
     if irmodel_choice == 0:
-       print("dfd")
        return ir_system.IRBoolean(corpus,query)
     elif irmodel_choice == 1:
        return ir_system.IR_tf(corpus,query)

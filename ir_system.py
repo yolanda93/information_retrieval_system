@@ -10,6 +10,7 @@ from nltk.stem import PorterStemmer
 from gensim import corpora, models, similarities
 from operator import itemgetter
 import abc
+import re
 
 ###################################################################################
 ## @class   InformationRetrievalSystem
@@ -154,7 +155,18 @@ class IRBoolean(IRSystem):
         print("\n--------------------------Executing Boolean information retrieval model--------------------------\n")
         # launch queries
         for q in queries:
-          self.ranking_function(corpus,q)
+            or_set,and_set = self.preprocess_query(q)
+            self.process_operators(corpus,or_set,and_set)
+
+
+    def process_operators(self,corpus,or_set,and_set):   
+        or_list = [val for sublist in or_set for val in sublist]     
+        for or_txt in or_list: # assign score 1 to documents that match with either phrase with or
+            self.ranking_function(corpus,or_txt)
+        if len(and_set) > 0: 
+          and_list = [val for sublist in and_set for val in sublist]
+          and_txt= ', '.join(and_list) # treat the and_set as a single query separated by commas
+          self.ranking_function(corpus,and_txt)
 
     def create_documents_view(self,corpus):
         dictionary,pdocs = self.create_dictionary(corpus)
@@ -164,16 +176,38 @@ class IRBoolean(IRSystem):
         pq = self.preprocess_document(query)
         return pq
 
+    def preprocess_query(self,q):
+        text=re.split(r'[^\w\s]',q) # detection of final of the OR operator, stop punctuation 
+        or_set=[]
+        and_set=[]
+        for phrase in text:
+            txt = re.split("or",phrase)
+            if(len(txt)>1): # there are OR operators
+               or_set.append(txt) 
+            else: 
+               and_set.append(txt) # it is an AND operator
+        return or_set,and_set
+        
     def ranking_function(self,corpus, q):
         dictionary,pdocs = self.create_documents_view(corpus)
         vq=self.create_query_view(q,dictionary)
+        dict_matches=dict((doc,0) for doc in corpus) # Create a dictionary with documents and initial value score 0
+        doc_number = 0 
         for doc in pdocs:
             intersection_list = list(set(doc) & set(vq))
             if len(intersection_list)==len(vq):
-               print("The document matches queries with only AND operator")
-             
+               dict_matches[corpus[doc_number]]=1
+            else:
+               dict_matches[corpus[doc_number]]=0            
+            doc_number += 1         
+        self.print_result(dict_matches)
 
-              
+    def print_result(self,dict_matches):
+        for keys,values in dict_matches.items():
+            print("[ Score = " + str(values) + "] ")
+            print("Document = " + keys)
+          
+                   
 class IR_tf(IRSystem):
 
  def __init__(self,corpus,queries):
