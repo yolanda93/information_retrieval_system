@@ -31,7 +31,7 @@ Script parameters:
 
 ```
 
-![Alt text] (https://drive.google.com/file/d/0B5EUtmMtYJSEMm1LM0czY292MW8/view?usp=sharing "Usage example")
+![Alt text] (https://github.com/yolanda93/information_retrieval_system/blob/master/documents/images/Boolean%20Model.png "Usage example")
 
 ### Implementation
 
