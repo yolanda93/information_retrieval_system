@@ -31,7 +31,7 @@ Script parameters:
 
 ```
 
-![Alt text] (https://drive.google.com/file/d/0B5EUtmMtYJSEMm1LM0czY292MW8/view "Usage example")
+![Alt text] (https://drive.google.com/file/d/0B5EUtmMtYJSEMm1LM0czY292MW8/view?usp=sharing "Usage example")
 
 ### Implementation
 
