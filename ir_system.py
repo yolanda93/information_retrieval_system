@@ -121,9 +121,14 @@ class IR_tf_idf(IRSystem):
     def __init__(self,corpus,queries):
         IRSystem.__init__(self,corpus,queries)
         print("\n--------------------------Executing TF IDF information retrieval model--------------------------\n")
-        # launch queries
-        for q in queries:
-          self.ranking_function(corpus,q)
+        
+        if len(queries) >1: # launch queries
+           for q in queries:
+               print("\n-------------------------->Query = " + q ) 
+               self.ranking_function(corpus,q)
+        else:
+            print("\n-------------------------->Query = " + queries ) 
+            self.ranking_function(corpus,queries)
 
     def create_documents_view(self,corpus):
         dictionary,pdocs = self.create_dictionary(corpus)
@@ -153,20 +158,28 @@ class IRBoolean(IRSystem):
     def __init__(self,corpus,queries):
         IRSystem.__init__(self,corpus,queries)
         print("\n--------------------------Executing Boolean information retrieval model--------------------------\n")
-        # launch queries
-        for q in queries:
-            or_set,and_set = self.preprocess_query(q)
-            self.process_operators(corpus,or_set,and_set)
-
+        
+        if isinstance(queries, list): # launch queries
+           for q in queries:
+               print("\n-------------------------->Query = " + q ) 
+               or_set,and_set = self.preprocess_query(q)
+               dict_matches = self.process_operators(corpus,or_set,and_set)
+               self.print_result(dict_matches)
+        else:
+             print("\n-------------------------->Query = " + queries ) 
+             or_set,and_set = self.preprocess_query(queries)
+             dict_matches = self.process_operators([corpus],or_set,and_set)
+             self.print_result(dict_matches)
 
     def process_operators(self,corpus,or_set,and_set):   
         or_list = [val for sublist in or_set for val in sublist]     
         for or_txt in or_list: # assign score 1 to documents that match with either phrase with or
-            self.ranking_function(corpus,or_txt)
+            dict_matches = self.ranking_function(corpus,or_txt)
         if len(and_set) > 0: 
           and_list = [val for sublist in and_set for val in sublist]
           and_txt= ', '.join(and_list) # treat the and_set as a single query separated by commas
-          self.ranking_function(corpus,and_txt)
+          dict_matches =  self.ranking_function(corpus,and_txt)
+        return dict_matches
 
     def create_documents_view(self,corpus):
         dictionary,pdocs = self.create_dictionary(corpus)
@@ -194,13 +207,12 @@ class IRBoolean(IRSystem):
         dict_matches=dict((doc,0) for doc in corpus) # Create a dictionary with documents and initial value score 0
         doc_number = 0 
         for doc in pdocs:
-            intersection_list = list(set(doc) & set(vq))
-            if len(intersection_list)==len(vq):
-               dict_matches[corpus[doc_number]]=1
-            else:
-               dict_matches[corpus[doc_number]]=0            
-            doc_number += 1         
-        self.print_result(dict_matches)
+            intersection_list = list(set(doc) & set(vq)) 
+            if len(intersection_list)==len(vq): # All terms are contained in the doc
+               dict_matches[corpus[doc_number]]=1       
+            doc_number += 1     
+        return dict_matches
+      
 
     def print_result(self,dict_matches):
         for keys,values in dict_matches.items():
@@ -213,9 +225,14 @@ class IR_tf(IRSystem):
  def __init__(self,corpus,queries):
         IRSystem.__init__(self,corpus,queries)
         print("\n--------------------------Executing TF information retrieval model--------------------------\n")
-        # launch queries
-        for q in queries:
-          self.ranking_function(corpus,q)
+        
+        if len(queries) >1: # launch queries
+           for q in queries:
+               print("\n-------------------------->Query = " + q ) 
+               self.ranking_function(corpus,q)
+        else:
+            print("\n-------------------------->Query = " + queries ) 
+            self.ranking_function(corpus,queries)
 
  def create_documents_view(self,corpus):
         dictionary,pdocs = self.create_dictionary(corpus)

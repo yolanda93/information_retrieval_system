@@ -9,7 +9,7 @@ import re
 #  @param   user_input The input given by the user
 #################################################################################  
 def preprocess_userinput(user_input):
-    if "/" or "\\" in user_input: # the user has provided a file path with a set of texts
+    if ("/" or "\\") in user_input: # the user has provided a file path with a set of texts
        try:
            list_texts = re.split(".I \d*\n.W\n",open(user_input).read())[1:] # Split text file with the delimiter, erase first delimiter
            return list_texts
