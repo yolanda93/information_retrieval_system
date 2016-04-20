@@ -31,6 +31,8 @@ Script parameters:
 
 ```
 
+![Alt text] (https://drive.google.com/open?id=0B5EUtmMtYJSEMm1LM0czY292MW8 "Usage example")
+
 ### Implementation
 
 #### Standard Boolean Model
@@ -53,11 +55,11 @@ In order to implement this model it is used classical set theory. Therefore, the
    
 **Algorithm result**
 
-(1) S; S =  " blood or urinary steroids in human breast or prostatic neoplasms."; lenght of AND_operator_set == 1
-(2) S = AvBvC; A = "blood", B = "urinary steroids in human breast", C = "prostatic neoplasms."
-(3)  AND_operator_set == 1
-(4) Look for documents matches that dont exist already.
-(5) Result = A_doc_matches + B_doc_matches  + C_doc_matches 
+ 1. S; S =  " blood or urinary steroids in human breast or prostatic neoplasms."; lenght of AND_operator_set == 1
+ 2. S = AvBvC; A = "blood", B = "urinary steroids in human breast", C = "prostatic neoplasms."
+ 3.  AND_operator_set == 1
+ 4. Look for documents matches that dont exist already.
+ 5. Result = A_doc_matches + B_doc_matches  + C_doc_matches 
 
 
 ## Contact information
