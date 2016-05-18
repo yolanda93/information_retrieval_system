@@ -66,6 +66,32 @@ In order to implement this model it is used classical set theory. Therefore, the
  5. Result = A_doc_matches + B_doc_matches  + C_doc_matches 
 
 
+### Evaluating IR Systems
+
+Evaluation the performance of the generated information retrieval models by comparing their average precision/recall curves for 30 different queries provided in the file MED.QRY. 
+
+a third file called MED.REL is provided, which contains relevance assessments for each query in MED.QRY. Each line belonging to this file contains 4 colums, where only the first and the third are relevant for our purpose. The first colum identifies a query while the third column represents a document. Therefore the line:
+
+1  0  13  1
+
+Indicates that document with ID 13 is relevant to query 1 (the second and fourth column must be ignored). Another example:
+
+2  0  296  1
+
+indicates that document #296 is relevant to query #2.
+
+For further information on how to create the average Precision/Recall curves please see the document Evaluation_Measures.pdf a third file called MED.REL is provided, which contains relevance assessments for each query in MED.QRY. Each line belonging to this file contains 4 colums, where only the first and the third are relevant for our purpose. The first colum identifies a query while the third column represents a document. Therefore the line:
+
+1  0  13  1
+
+Indicates that document with ID 13 is relevant to query 1 (the second and fourth column must be ignored). Another example:
+
+2  0  296  1
+
+indicates that document #296 is relevant to query #2.
+
+For further information on how to create the average Precision/Recall curves please see the document Evaluation_Measures.pdf 
+
 ## Contact information
 		
 Yolanda de la Hoz Simón. yolanda93h@gmail.com
