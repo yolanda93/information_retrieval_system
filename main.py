@@ -3,6 +3,7 @@ import ir_system
 import sys
 import re
 import os
+import csv
 #################################################################################
 ## @brief   preprocess_input
 #  @details This method reads user input and transform it into a list
@@ -38,14 +39,14 @@ def create_ir_system(irmodel_choice,corpus,query):
 ## @brief The main function that enables the user to launch queries
 ####################################################################################################################### 
 if __name__ == '__main__':
-    
+   
       print("--------------------------------------------------------\n")
       print("------------ Project: Information Retrieval System\n")
       print("------------ Course:  Data Science Master - Technical University of Madrid\n")
       print("------------ Subject: Information Extraction, Retrieval and Intregation\n")
       print("------------ Author:  Yolanda de la Hoz Simon\n")
       print("--------------------------------------------------------\n")
-
+      '''
       corpus_input = raw_input("Write a text or enter the corpus path:\n") 
       corpus_text=preprocess_userinput(corpus_input)
       query_input = raw_input("Write a query or enter a document path with a set of queries:\n") 
@@ -55,4 +56,22 @@ if __name__ == '__main__':
       irmodel_choice = raw_input("Please, choose an information retrieval model by entering the id of the model:\n") 
 
       ir = create_ir_system(int(irmodel_choice),corpus_text,query_text)
+      '''
+      irevaluator_choice = raw_input("Do you want to execute the performance evaluation of the IR system selected (YES/NO)? \n")
+   
+      if(irevaluator_choice=="YES"):
+         relevances_input = raw_input("Write the directory path with the document relevances:\n") 
+         with open(relevances_input, 'rb') as csvfile:
+              spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+              relevances=[]
+              for row in spamreader:
+                  print ', '.join(row)
+                  relevances.append(row)
 
+
+         relevances_text=preprocess_userinput(relevances_input)
+         IREvaluator(relevances_text)
+      
+     
+
+      
