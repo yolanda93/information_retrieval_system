@@ -126,6 +126,7 @@ class IR_tf_idf(IRSystem):
            for q in queries:
                print("\n-------------------------->Query = " + q ) 
                self.ranking_function(corpus,q)
+             
         else:
             print("\n-------------------------->Query = " + queries ) 
             self.ranking_function(corpus,queries)

@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import ir_system    
+import ir_evaluator
 import sys
 import re
 import os
@@ -49,9 +50,11 @@ if __name__ == '__main__':
       '''
       corpus_input = raw_input("Write a text or enter the corpus path:\n") 
       corpus_text=preprocess_userinput(corpus_input)
+      '''
       query_input = raw_input("Write a query or enter a document path with a set of queries:\n") 
       query_text=preprocess_userinput(query_input)
 
+      '''
       print("\n The available models are: \n 0:Boolean\n 1:TF\n 2:TF-IDF\n \n")
       irmodel_choice = raw_input("Please, choose an information retrieval model by entering the id of the model:\n") 
 
@@ -68,9 +71,7 @@ if __name__ == '__main__':
                   print ', '.join(row)
                   relevances.append(row)
 
-
-         relevances_text=preprocess_userinput(relevances_input)
-         IREvaluator(relevances_text)
+         ir_evaluator.IREvaluator(relevances,query_text)
       
      
 
