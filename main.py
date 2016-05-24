@@ -47,19 +47,19 @@ if __name__ == '__main__':
       print("------------ Subject: Information Extraction, Retrieval and Intregation\n")
       print("------------ Author:  Yolanda de la Hoz Simon\n")
       print("--------------------------------------------------------\n")
-      '''
+
       corpus_input = raw_input("Write a text or enter the corpus path:\n") 
       corpus_text=preprocess_userinput(corpus_input)
-      '''
+    
       query_input = raw_input("Write a query or enter a document path with a set of queries:\n") 
       query_text=preprocess_userinput(query_input)
 
-      '''
+    
       print("\n The available models are: \n 0:Boolean\n 1:TF\n 2:TF-IDF\n \n")
       irmodel_choice = raw_input("Please, choose an information retrieval model by entering the id of the model:\n") 
 
       ir = create_ir_system(int(irmodel_choice),corpus_text,query_text)
-      '''
+      
       irevaluator_choice = raw_input("Do you want to execute the performance evaluation of the IR system selected (YES/NO)? \n")
    
       if(irevaluator_choice=="YES"):
@@ -71,7 +71,7 @@ if __name__ == '__main__':
                   print ', '.join(row)
                   relevances.append(row)
 
-         ir_evaluator.IREvaluator(relevances,query_text)
+         ir_evaluator.IREvaluator(relevances,query_text,ir.ranking)
       
      
 

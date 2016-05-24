@@ -121,7 +121,8 @@ class IR_tf_idf(IRSystem):
     def __init__(self,corpus,queries):
         IRSystem.__init__(self,corpus,queries)
         print("\n--------------------------Executing TF IDF information retrieval model--------------------------\n")
-        
+        self.ranking_query=dict()
+
         if len(queries) >1: # launch queries
            for q in queries:
                print("\n-------------------------->Query = " + q ) 
@@ -151,15 +152,18 @@ class IR_tf_idf(IRSystem):
         qtfidf = tfidf[vq]
         sim = index[qtfidf]
         ranking = sorted(enumerate(sim), key=itemgetter(1), reverse=True)
-        for doc, score in ranking:
+        self.ranking_query[q]=ranking # store the ranking of the query in a dict
+        for doc, score in self.ranking:
             print ("[ Score = " + "%.3f" % round(score, 3) + "] " + corpus[doc]);
+        
 
 class IRBoolean(IRSystem):
 
     def __init__(self,corpus,queries):
         IRSystem.__init__(self,corpus,queries)
         print("\n--------------------------Executing Boolean information retrieval model--------------------------\n")
-        
+        self.ranking_query=dict()
+
         if isinstance(queries, list): # launch queries
            for q in queries:
                print("\n-------------------------->Query = " + q ) 
@@ -226,8 +230,9 @@ class IR_tf(IRSystem):
  def __init__(self,corpus,queries):
         IRSystem.__init__(self,corpus,queries)
         print("\n--------------------------Executing TF information retrieval model--------------------------\n")
-        
-        if len(queries) >1: # launch queries
+        self.ranking_query=dict()
+
+        if len(queries) >0: # launch queries CAMBIAR!!!
            for q in queries:
                print("\n-------------------------->Query = " + q ) 
                self.ranking_function(corpus,q)
@@ -254,7 +259,8 @@ class IR_tf(IRSystem):
         qtf = tf[vq]
         sim = index[qtf.slice_]
         ranking = sorted(enumerate(sim), key=itemgetter(1), reverse=True)
-        for doc, score in ranking:
+        self.ranking_query[q]=ranking # store the ranking of the query in a dict
+        for doc, score in self.ranking:
             print ("[ Score = " + "%.3f" % round(score, 3) + "] " + corpus[doc]);
 
     
