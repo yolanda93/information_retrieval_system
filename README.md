@@ -92,6 +92,33 @@ indicates that document #296 is relevant to query #2.
 
 For further information on how to create the average Precision/Recall curves please see the document Evaluation_Measures.pdf 
 
+### Rocchio's relevance feedback schema
+
+ The Rocchio's relevance feedback schema allows the user to improve the system's performance by incrementally reformulating the user query based on the relevance assessments provided by the user.
+ 
+ The Rocchio's relevance feedback scheme is described in the paper "Relevance Feedback in Information Retrieval" (1965) (Documentation)
+ 
+ Steps:
+ 
+ 1) The user launchs a query to the system.
+
+2) The system returns a ranking of the documents according to the query.
+
+3) Generate a P/R curve that characterises the performance of the system wrt the query (using the relevance assessments provided in MED.REL).
+
+4) The user chooses the X (e.g. X=20) first documents in the ranking and marks them as being relevant or non relevant according to the relevance assessments in MED.REL.
+
+5) According these relevance judgements, the system updates the original query based on Rocchio's formula.
+
+6) The system launchs the new query and presents a new ranking.
+
+7) A new P/R curve is generated and compared to the previous one. Is the system improving in precision and/or recall?
+
+8) While not satisfied goto 4.
+
+     Rocchio's formula
+
+
 ## Contact information
 		
 Yolanda de la Hoz Simón. yolanda93h@gmail.com
