@@ -71,11 +71,11 @@ class IREvaluator(object):
         relevants_docs_query=[] # stores the relevant docs for a query
         for doc in self.relevance_docs:
             if(int(doc[0])==query_id): # the position 0 contains the query ID
-              relevant_docs=relevant_docs+1
+              relevant_docs += 1
               relevants_docs_query.append(doc[2]) # position 3 indicates document ID
             if(int(doc[0])>query_id): # relevance docs csv are ordered, we stop to iterate 
               relevants_query[query_id]=relevants_docs_query       
-              query_id=query_id+1
+              query_id += 1
               #total_relevant_docs.append(relevant_docs);
               relevant_docs=0               
         return relevants_docs_query

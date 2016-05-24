@@ -74,5 +74,5 @@ if __name__ == '__main__':
          ir_evaluator.IREvaluator(relevances,query_text,ir.ranking)
       
      
-
-      
+      rocchio_choice = raw_input("Do you want to execute the rocchio algorithm optimization (YES/NO)? \n")
+      if(rocchio_choice=="YES"):
