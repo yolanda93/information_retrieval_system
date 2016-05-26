@@ -62,7 +62,7 @@ if __name__ == '__main__':
       
       irevaluator_choice = raw_input("Do you want to execute the performance evaluation of the IR system selected (YES/NO)? \n")
    
-      if(irevaluator_choice=="YES"):
+      if((irevaluator_choice=="YES") | (irevaluator_choice=="yes") ):
          relevances_input = raw_input("Write the directory path with the document relevances:\n") 
          with open(relevances_input, 'rb') as csvfile:
               spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
@@ -71,8 +71,9 @@ if __name__ == '__main__':
                   print ', '.join(row)
                   relevances.append(row)
 
-         ir_evaluator.IREvaluator(relevances,query_text,ir.ranking)
+         ir_evaluator.IREvaluator(relevances,ir.ranking_query)
       
      
       rocchio_choice = raw_input("Do you want to execute the rocchio algorithm optimization (YES/NO)? \n")
       if(rocchio_choice=="YES"):
+         print("rocchio algorithm")

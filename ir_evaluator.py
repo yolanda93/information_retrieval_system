@@ -4,19 +4,21 @@ class IREvaluator(object):
     ## @brief   Constructor
     #  @details This method initializes the class with:
     #           relevance_docs It contains relevance assessments for each query in MED.QRY
+    #  ranking_query  
     #################################################################################    
     def __init__(self,relevance_docs,ranking_query):
         self.relevance_docs=relevance_docs        
         relevants_docs_query=self.get_total_relevant_docs()
       
-
-        if len(ranking_query) >0: # launch queries CAMBIAR!!!
+        query_id=1
+        if len(ranking_query) >1: 
            for q in ranking_query:
-               print("\n-------------------------->Query = " + q ) 
-               self.evaluate_query(self,ranking_query[q],relevants_docs_query,q)
+               print("\n-------------------------->Query = " + str(query_id) ) 
+               self.evaluate_query(ranking_query[q],relevants_docs_query,query_id)
+               query_id += 1
         else:
-            print("\n-------------------------->Query = " + queries ) 
-            self.evaluate_query(self,ranking_query[0],relevants_docs_query,0)
+            print("\n-------------------------->Query = " + str(query_id) ) 
+            self.evaluate_query(ranking_query[0],relevants_docs_query,0)
 
         
     
@@ -28,15 +30,15 @@ class IREvaluator(object):
     #  @param   ranking Ranking result for each 
     #  @param   relevance_docs It contains relevance assessments for each query in MED.QRY
     #################################################################################    
-    def evaluate_query(self,ranking,relevants_docs_query):
-        [true_positives, false_positives] = self.relevant_doc_retrieved(q,ranking,relevants_docs_query)
+    def evaluate_query(self,ranking,relevants_docs_query,query_id):
+        [true_positives, false_positives] = self.relevant_doc_retrieved(query_id,ranking,relevants_docs_query)
 
-        precision = self.get_recall(self,true_positives_retrieved,len(ranking))
-        recall = self.get_precision(self,true_positives,false_negatives)
+        recall = self.get_recall(true_positives,len(relevants_docs_query[query_id]))
+        precision = self.get_precision(true_positives,false_positives)
 
 
-        print("\n-------------------------->The query = " + query_id + "has precision" + precision + "\n")
-        print("\n-------------------------->The query = " + query_id + "has recall" + recall + "\n") 
+        print(" Precision: " + str(precision) + "\n")
+        print(" Recall:  "  +  str(recall) + "\n") 
                
         return 
 
@@ -51,7 +53,7 @@ class IREvaluator(object):
         true_positives = 0
         false_positives = 0
         for doc in ranking:
-           if doc[0] in relevants_docs_query[query]: # position 3 indicates document ID
+           if str(doc[0]) in relevants_docs_query[query]: # position 3 indicates document ID
                 true_positives += 1
            else:
                 false_positives += 1
@@ -60,25 +62,20 @@ class IREvaluator(object):
     #################################################################################
     ## @brief   total_relevant_docs
     #  @details This method returns the total relevant documents for a query.
-    #  @param   query_id The id of the query
-    #           relevants_query is a dictionary that stores the query key and the relevant documents IDs
+    #  @param   relevants_docs_query is a dictionary that stores the query key and the relevant documents IDs
     #################################################################################    
     def get_total_relevant_docs(self): 
-        relevant_docs=0   
         query_id=1 
         relevants_query=dict()
-        #total_relevant_docs=[]
         relevants_docs_query=[] # stores the relevant docs for a query
         for doc in self.relevance_docs:
             if(int(doc[0])==query_id): # the position 0 contains the query ID
-              relevant_docs += 1
               relevants_docs_query.append(doc[2]) # position 3 indicates document ID
             if(int(doc[0])>query_id): # relevance docs csv are ordered, we stop to iterate 
-              relevants_query[query_id]=relevants_docs_query       
-              query_id += 1
-              #total_relevant_docs.append(relevant_docs);
-              relevant_docs=0               
-        return relevants_docs_query
+              relevants_query[query_id]=relevants_docs_query  
+              relevants_docs_query=[] # clean     
+              query_id += 1   
+        return relevants_query
 
 
     #################################################################################
@@ -88,8 +85,8 @@ class IREvaluator(object):
     #  @param   false_negatives retrieved documents incorrectly
     #  @param   real_true_positives total of documents that are really relevant 
     #################################################################################    
-    def get_recall(self,true_positives,true_negatives,real_true_positives):
-        recall=true_positives/real_true_positives
+    def get_recall(self,true_positives,real_true_positives):
+        recall=float(true_positives)/float(real_true_positives)
         return recall
 
     #################################################################################
@@ -100,5 +97,5 @@ class IREvaluator(object):
     #################################################################################    
     def get_precision(self,true_positives,false_positives):
         relevant_items_retrieved=true_positives+false_positives
-        recall=true_positives/relevant_items_retrieved
-        return recall
+        precision=float(true_positives)/float(relevant_items_retrieved)
+        return precision

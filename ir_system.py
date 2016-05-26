@@ -153,7 +153,7 @@ class IR_tf_idf(IRSystem):
         sim = index[qtfidf]
         ranking = sorted(enumerate(sim), key=itemgetter(1), reverse=True)
         self.ranking_query[q]=ranking # store the ranking of the query in a dict
-        for doc, score in self.ranking:
+        for doc, score in ranking:
             print ("[ Score = " + "%.3f" % round(score, 3) + "] " + corpus[doc]);
         
 
@@ -232,13 +232,15 @@ class IR_tf(IRSystem):
         print("\n--------------------------Executing TF information retrieval model--------------------------\n")
         self.ranking_query=dict()
 
-        if len(queries) >0: # launch queries CAMBIAR!!!
+        query_id=0
+        if len(queries) >1: # launch queries
            for q in queries:
                print("\n-------------------------->Query = " + q ) 
-               self.ranking_function(corpus,q)
+               self.ranking_function(corpus,q,query_id)
+               query_id += 1;
         else:
             print("\n-------------------------->Query = " + queries ) 
-            self.ranking_function(corpus,queries)
+            self.ranking_function(corpus,queries,1)
 
  def create_documents_view(self,corpus):
         dictionary,pdocs = self.create_dictionary(corpus)
@@ -251,7 +253,7 @@ class IR_tf(IRSystem):
         vq = dictionary.doc2bow(pq)
         return vq
 
- def ranking_function(self,corpus, q):
+ def ranking_function(self,corpus, q,query_id):
         tf, dictionary = self.create_documents_view(corpus)
         loaded_corpus = corpora.MmCorpus('vsm_docs.mm')
         index = similarities.MatrixSimilarity(loaded_corpus, num_features=len(dictionary))
@@ -259,8 +261,8 @@ class IR_tf(IRSystem):
         qtf = tf[vq]
         sim = index[qtf.slice_]
         ranking = sorted(enumerate(sim), key=itemgetter(1), reverse=True)
-        self.ranking_query[q]=ranking # store the ranking of the query in a dict
-        for doc, score in self.ranking:
+        self.ranking_query[query_id]=ranking # store the ranking of the query in a dict
+        for doc, score in ranking:
             print ("[ Score = " + "%.3f" % round(score, 3) + "] " + corpus[doc]);
 
     
