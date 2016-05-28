@@ -120,16 +120,27 @@ For further information on how to create the average Precision/Recall curves ple
 
 ![Alt text] (https://github.com/yolanda93/information_retrieval_system/blob/master/documents/images/rocchio-formula.png "Rocchio formula")
 
+
+|   |   |
+
+|   |   | 
+|   |   | 
+|   |   |
+|   |   |
+|   |   | 
+|   |   | 
+|   |   |
 Variable	Value
- Q_m	Modified Query Vector
- Q_o 	Original Query Vector
- D_j 	Related Document Vector
- D_k 	Non-Related Document Vector
- a 	Original Query Weight
- b 	Related Documents Weight
- c 	Non-Related Documents Weight
- D_r 	Set of Related Documents
- D_nr   Set of Non-Related Documents
+|-------|-----------------------------|
+| Q_m   |Modified Query Vector        |
+| Q_o   |Original Query Vector        |
+| D_j   |Related Document Vector      |
+| D_k   |Non-Related Document Vector  |
+| a     |Original Query Weight        |
+| b     |Related Documents Weight     |
+| c     |Non-Related Documents Weight |
+| D_r   |Set of Related Documents     |
+| D_nr  |Set of Non-Related Documents |
 
 ## Contact information
 		
