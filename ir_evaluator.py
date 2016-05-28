@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plot
 class IREvaluator(object):
     """description of class"""
     #################################################################################
@@ -18,11 +19,8 @@ class IREvaluator(object):
                query_id += 1
         else:
             print("\n-------------------------->Query = " + str(query_id) ) 
-            self.evaluate_query(ranking_query[0],relevants_docs_query,0)
+            self.evaluate_query(ranking_query[1],relevants_docs_query,1)
 
-        
-    
-       
 
    #################################################################################
     ## @brief   evaluate_query
@@ -39,6 +37,8 @@ class IREvaluator(object):
 
         print(" Precision: " + str(precision) + "\n")
         print(" Recall:  "  +  str(recall) + "\n") 
+
+        plot_results(recall, precision)
                
         return 
 
@@ -99,3 +99,27 @@ class IREvaluator(object):
         relevant_items_retrieved=true_positives+false_positives
         precision=float(true_positives)/float(relevant_items_retrieved)
         return precision
+    
+    
+    #################################################################################
+    ## @brief   plot_results
+    #  @details plot the result of evaluate each query
+    #  @param   recall retrieved documents correctly
+    #  @param   precision retrieved documents incorrectly
+    #################################################################################   
+    def plot_results(recall, precision):
+        plot.plot(recalls, precisions)
+        plot.ylabel('precision')
+        plot.xlabel('recall')
+        plot.draw()
+
+        path_save = raw_input("Please, provide the path where the results should be saved \n")
+        if len(path_save) >0: 
+            if os.path.exists(path_save):
+               plt.savefig(path_save)
+            else:
+               os.makedirs(path_save)
+
+        #show results
+        plot.show()
+        plot.close()
