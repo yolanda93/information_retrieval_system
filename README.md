@@ -118,10 +118,18 @@ For further information on how to create the average Precision/Recall curves ple
 
      Rocchio's formula
 
-```tex
- \overrightarrow{Q_m} = \bigl(a \cdot \overrightarrow{Q_o}\bigr) + \biggl(b \cdot {\tfrac{1}{|D_r|}} \cdot \sum_{\overrightarrow{D_j} \in D_r} \overrightarrow{D_j}\biggr)
-- \biggl(c \cdot {\tfrac{1}{|D_{nr}|}} \cdot \sum_{\overrightarrow{D_k} \in D_{nr}} \overrightarrow{D_k}\biggr) 
-```
+![Alt text] (https://github.com/yolanda93/information_retrieval_system/blob/master/documents/images/rocchio-formula.png "Rocchio formula")
+
+Variable	Value
+ Q_m	Modified Query Vector
+ Q_o 	Original Query Vector
+ D_j 	Related Document Vector
+ D_k 	Non-Related Document Vector
+ a 	Original Query Weight
+ b 	Related Documents Weight
+ c 	Non-Related Documents Weight
+ D_r 	Set of Related Documents
+ D_nr   Set of Non-Related Documents
 
 ## Contact information
 		
