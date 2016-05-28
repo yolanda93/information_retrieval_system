@@ -38,7 +38,7 @@ class IREvaluator(object):
         print(" Precision: " + str(precision) + "\n")
         print(" Recall:  "  +  str(recall) + "\n") 
 
-        plot_results(recall, precision)
+        self.plot_results(recall, precision)
                
         return 
 
@@ -107,8 +107,8 @@ class IREvaluator(object):
     #  @param   recall retrieved documents correctly
     #  @param   precision retrieved documents incorrectly
     #################################################################################   
-    def plot_results(recall, precision):
-        plot.plot(recalls, precisions)
+    def plot_results(self,recall, precision):
+        plot.plot(recall, precision)
         plot.ylabel('precision')
         plot.xlabel('recall')
         plot.draw()
