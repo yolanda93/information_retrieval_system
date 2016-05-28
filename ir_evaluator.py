@@ -4,7 +4,7 @@ class IREvaluator(object):
     ## @brief   Constructor
     #  @details This method initializes the class with:
     #           relevance_docs It contains relevance assessments for each query in MED.QRY
-    #  ranking_query  
+    #           ranking_query  
     #################################################################################    
     def __init__(self,relevance_docs,ranking_query):
         self.relevance_docs=relevance_docs        
@@ -27,7 +27,7 @@ class IREvaluator(object):
    #################################################################################
     ## @brief   evaluate_query
     #  @details This method computes the precision and recall
-    #  @param   ranking Ranking result for each 
+    #  @param   ranking Ranking result for each query
     #  @param   relevance_docs It contains relevance assessments for each query in MED.QRY
     #################################################################################    
     def evaluate_query(self,ranking,relevants_docs_query,query_id):

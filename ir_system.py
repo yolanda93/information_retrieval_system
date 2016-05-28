@@ -123,7 +123,7 @@ class IR_tf_idf(IRSystem):
         print("\n--------------------------Executing TF IDF information retrieval model--------------------------\n")
         self.ranking_query=dict()
 
-        if len(queries) >1: # launch queries
+        if isinstance(queries, list): # launch queries
            for q in queries:
                print("\n-------------------------->Query = " + q ) 
                self.ranking_function(corpus,q)
@@ -149,8 +149,8 @@ class IR_tf_idf(IRSystem):
         loaded_corpus = corpora.MmCorpus('vsm_docs.mm')
         index = similarities.MatrixSimilarity(loaded_corpus, num_features=len(dictionary))
         vq=self.create_query_view(q,dictionary)
-        qtfidf = tfidf[vq]
-        sim = index[qtfidf]
+        self.query_weight = tfidf[vq]
+        sim = index[self.query_weight]
         ranking = sorted(enumerate(sim), key=itemgetter(1), reverse=True)
         self.ranking_query[q]=ranking # store the ranking of the query in a dict
         for doc, score in ranking:
@@ -233,7 +233,7 @@ class IR_tf(IRSystem):
         self.ranking_query=dict()
 
         query_id=0
-        if len(queries) >1: # launch queries
+        if isinstance(queries, list): # launch queries
            for q in queries:
                print("\n-------------------------->Query = " + q ) 
                self.ranking_function(corpus,q,query_id)
@@ -258,8 +258,8 @@ class IR_tf(IRSystem):
         loaded_corpus = corpora.MmCorpus('vsm_docs.mm')
         index = similarities.MatrixSimilarity(loaded_corpus, num_features=len(dictionary))
         vq=self.create_query_view(q,dictionary)
-        qtf = tf[vq]
-        sim = index[qtf.slice_]
+        self.query_weight = tf[vq]
+        sim = index[self.query_weight.slice_]
         ranking = sorted(enumerate(sim), key=itemgetter(1), reverse=True)
         self.ranking_query[query_id]=ranking # store the ranking of the query in a dict
         for doc, score in ranking:

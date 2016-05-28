@@ -78,12 +78,14 @@ if __name__ == '__main__':
       if( (rocchio_choice=="YES" ) | (irevaluator_choice=="yes") ):
          print(" Executing Rocchio Algorithm")
          # The user chooses the X (e.g. X=20) first documents in the ranking and marks them as being relevant or non relevant according to the relevance assessments in MED.REL
-
-
+         user_improvement = raw_input("Please, choose the X (e.g. X=20) first documents in the ranking and marks them as being relevant or non relevant according to the relevance assessments in MED.REL  \n")
+         relevance_judgments = dict();
+         for doc in ir.ranking_query[0]:
+             relevance_judgments[doc] = raw_input("Is relevant the document ID "  + str(doc[0]) +  "(YES/NO)?")
          #5) According these relevance judgements, the system updates the original query based on Rocchio's formula.
-
+    
          #6) The system launchs the new query and presents a new ranking.
 
          #7) A new P/R curve is generated and compared to the previous one. Is the system improving in precision and/or recall?
 
-         #8) While not satisfied goto 4.
+         #8) While not satisfied goto 4
