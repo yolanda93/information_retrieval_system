@@ -118,6 +118,9 @@ For further information on how to create the average Precision/Recall curves ple
 
      Rocchio's formula
 
+ \overrightarrow{Q_m} = \bigl(a \cdot \overrightarrow{Q_o}\bigr) + \biggl(b \cdot {\tfrac{1}{|D_r|}} \cdot \sum_{\overrightarrow{D_j} \in D_r} \overrightarrow{D_j}\biggr)
+- \biggl(c \cdot {\tfrac{1}{|D_{nr}|}} \cdot \sum_{\overrightarrow{D_k} \in D_{nr}} \overrightarrow{D_k}\biggr) 
+
 
 ## Contact information
 		
