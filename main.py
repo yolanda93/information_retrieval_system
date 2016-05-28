@@ -80,8 +80,8 @@ if __name__ == '__main__':
          # The user chooses the X (e.g. X=20) first documents in the ranking and marks them as being relevant or non relevant according to the relevance assessments in MED.REL
          user_improvement = raw_input("Please, choose the X (e.g. X=20) first documents in the ranking and marks them as being relevant or non relevant according to the relevance assessments in MED.REL  \n")
          relevance_judgments = dict();
-         for doc in ir.ranking_query[0]:
-             relevance_judgments[doc] = raw_input("Is relevant the document ID "  + str(doc[0]) +  "(YES/NO)?")
+         for doc in ir.ranking_query[1][0:19]: # update the first 20 docs in the ranking 
+             relevance_judgments[doc] = raw_input("Is relevant the document ID "  + str(doc[0]) +  " (Y/N)?")
          #5) According these relevance judgements, the system updates the original query based on Rocchio's formula.
     
          #6) The system launchs the new query and presents a new ranking.

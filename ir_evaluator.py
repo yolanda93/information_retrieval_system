@@ -56,11 +56,11 @@ class IREvaluator(object):
            precision.append(self.get_precision(true_positives,false_positives))
 
 
-        recalls_levels = array([ 0. ,  0.1,  0.2,  0.3,  0.4,  0.5,  0.6,  0.7,  0.8,  0.9,  1. ]) 
+        recalls_levels = np.array([ 0. ,  0.1,  0.2,  0.3,  0.4,  0.5,  0.6,  0.7,  0.8,  0.9,  1. ]) 
 
         interpolated_precisions = self.interpolate_precisions(recall,precision,recalls_levels)
 
-        self.plot_results(interpolation_recalls, interpolated_precisions)
+        self.plot_results(recalls_levels, interpolated_precisions)
                
         return 
 
@@ -159,7 +159,7 @@ class IREvaluator(object):
         path_save = raw_input("Please, provide the path where the results should be saved \n")
         if len(path_save) >0: 
             if os.path.exists(path_save):
-               plt.savefig(path_save)
+               plot.savefig(path_save)
             else:
                os.makedirs(path_save)
 
