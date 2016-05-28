@@ -1,4 +1,7 @@
 import matplotlib.pyplot as plot
+import os
+import numpy as np
+
 class IREvaluator(object):
     """description of class"""
     #################################################################################
@@ -34,11 +37,30 @@ class IREvaluator(object):
         recall = self.get_recall(true_positives,len(relevants_docs_query[query_id]))
         precision = self.get_precision(true_positives,false_positives)
 
-
+        # compute total precision and recall
         print(" Precision: " + str(precision) + "\n")
         print(" Recall:  "  +  str(recall) + "\n") 
 
-        self.plot_results(recall, precision)
+
+        true_positives = 0
+        false_positives = 0
+        recall = []
+        precision = []
+        for doc in ranking:
+           if str(doc[0]) in relevants_docs_query[query_id]: # position 3 indicates document ID
+                true_positives += 1
+           else:
+                false_positives += 1
+
+           recall.append(self.get_recall(true_positives,len(relevants_docs_query[query_id])))
+           precision.append(self.get_precision(true_positives,false_positives))
+
+
+        recalls_levels = array([ 0. ,  0.1,  0.2,  0.3,  0.4,  0.5,  0.6,  0.7,  0.8,  0.9,  1. ]) 
+
+        interpolated_precisions = self.interpolate_precisions(recall,precision,recalls_levels)
+
+        self.plot_results(interpolation_recalls, interpolated_precisions)
                
         return 
 
@@ -100,7 +122,28 @@ class IREvaluator(object):
         precision=float(true_positives)/float(relevant_items_retrieved)
         return precision
     
-    
+    #################################################################################
+    ## @brief   interpolate_precisions
+    #  @details individual topic precision values are interpolated to 
+    #           a set of standard recall levels (0 to 1 in increments of .1)
+    #  @param   recall retrieved documents correctly
+    #  @param   precision retrieved documents incorrectly
+    #  @param   recalls_levels the standard recall levels
+    ################################################################################# 
+    def interpolate_precisions(self,recalls,precisions, recalls_levels):
+        precisions_interpolated = np.zeros((len(recalls), len(recalls_levels)))
+        i = 0
+        while i < len(precisions):
+            # use the max precision obtained for the topic for any actual recall level greater than or equal the recall_levels
+            recalls_inter = np.where((recalls[i] >= recalls_levels) == True)[0]
+            for recall_id in recalls_inter:
+                if precisions[i] >= precisions_interpolated[i, recall_id]:
+                   precisions_interpolated[i, recall_id] = precisions[i]
+            i += 1
+
+        mean_interpolated_precisions = np.mean(precisions_interpolated, axis=0)
+        return mean_interpolated_precisions
+
     #################################################################################
     ## @brief   plot_results
     #  @details plot the result of evaluate each query
@@ -109,8 +152,8 @@ class IREvaluator(object):
     #################################################################################   
     def plot_results(self,recall, precision):
         plot.plot(recall, precision)
-        plot.ylabel('precision')
         plot.xlabel('recall')
+        plot.ylabel('precision')       
         plot.draw()
 
         path_save = raw_input("Please, provide the path where the results should be saved \n")
