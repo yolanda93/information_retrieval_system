@@ -75,5 +75,15 @@ if __name__ == '__main__':
       
      
       rocchio_choice = raw_input("Do you want to execute the rocchio algorithm optimization (YES/NO)? \n")
-      if(rocchio_choice=="YES"):
-         print("rocchio algorithm")
+      if( (rocchio_choice=="YES" ) | (irevaluator_choice=="yes") ):
+         print(" Executing Rocchio Algorithm")
+         # The user chooses the X (e.g. X=20) first documents in the ranking and marks them as being relevant or non relevant according to the relevance assessments in MED.REL
+
+
+         #5) According these relevance judgements, the system updates the original query based on Rocchio's formula.
+
+         #6) The system launchs the new query and presents a new ranking.
+
+         #7) A new P/R curve is generated and compared to the previous one. Is the system improving in precision and/or recall?
+
+         #8) While not satisfied goto 4.

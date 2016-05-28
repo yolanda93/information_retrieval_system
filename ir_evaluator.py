@@ -12,7 +12,7 @@ class IREvaluator(object):
       
         query_id=1
         if len(ranking_query) >1: 
-           for q in ranking_query:
+           for q in ranking_query-1:
                print("\n-------------------------->Query = " + str(query_id) ) 
                self.evaluate_query(ranking_query[q],relevants_docs_query,query_id)
                query_id += 1
