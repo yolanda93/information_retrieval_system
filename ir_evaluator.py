@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plot
 import os
 import numpy as np
+from matplotlib.backends.backend_pdf import PdfPages
 
 class IREvaluator(object):
     """description of class"""
@@ -56,7 +57,7 @@ class IREvaluator(object):
            precision.append(self.get_precision(true_positives,false_positives))
 
 
-        recalls_levels = np.array([ 0. ,  0.1,  0.2,  0.3,  0.4,  0.5,  0.6,  0.7,  0.8,  0.9,  1. ]) 
+        recalls_levels = np.array([ 0. ,  0.1,  0.2,  0.3,  0.4,  0.5,  0.6,  0.7,  0.8,  0.9,  1., 1.1 ]) 
 
         interpolated_precisions = self.interpolate_precisions(recall,precision,recalls_levels)
 
@@ -159,7 +160,9 @@ class IREvaluator(object):
         path_save = raw_input("Please, provide the path where the results should be saved \n")
         if len(path_save) >0: 
             if os.path.exists(path_save):
-               plot.savefig(path_save)
+               pp = PdfPages(path_save)
+               plot.savefig(pp, format='pdf')
+               pp.savefig()
             else:
                os.makedirs(path_save)
 

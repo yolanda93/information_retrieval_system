@@ -68,7 +68,6 @@ if __name__ == '__main__':
               spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
               relevances=[]
               for row in spamreader:
-                  print ', '.join(row)
                   relevances.append(row)
 
          ir_evaluator.IREvaluator(relevances,ir.ranking_query)
