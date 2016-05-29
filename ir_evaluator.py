@@ -11,8 +11,9 @@ class IREvaluator(object):
     #           relevance_docs It contains relevance assessments for each query in MED.QRY
     #           ranking_query  
     #################################################################################    
-    def __init__(self,relevance_docs,ranking_query):
+    def __init__(self,relevance_docs,ranking_query,continue_eval):
         self.relevance_docs=relevance_docs        
+        self.continue_eval=continue_eval
         relevants_docs_query=self.get_total_relevant_docs()
       
         query_id=1
@@ -33,35 +34,38 @@ class IREvaluator(object):
     #  @param   relevance_docs It contains relevance assessments for each query in MED.QRY
     #################################################################################    
     def evaluate_query(self,ranking,relevants_docs_query,query_id):
-        [true_positives, false_positives] = self.relevant_doc_retrieved(query_id,ranking,relevants_docs_query)
+        if(self.continue_eval):
+            [true_positives, false_positives] = self.relevant_doc_retrieved(query_id,ranking,relevants_docs_query)
 
-        recall = self.get_recall(true_positives,len(relevants_docs_query[query_id]))
-        precision = self.get_precision(true_positives,false_positives)
+            recall = self.get_recall(true_positives,len(relevants_docs_query[query_id]))
+            precision = self.get_precision(true_positives,false_positives)
 
-        # compute total precision and recall
-        print(" Precision: " + str(precision) + "\n")
-        print(" Recall:  "  +  str(recall) + "\n") 
-
-
-        true_positives = 0
-        false_positives = 0
-        recall = []
-        precision = []
-        for doc in ranking:
-           if str(doc[0]) in relevants_docs_query[query_id]: # position 3 indicates document ID
-                true_positives += 1
-           else:
-                false_positives += 1
-
-           recall.append(self.get_recall(true_positives,len(relevants_docs_query[query_id])))
-           precision.append(self.get_precision(true_positives,false_positives))
+            # compute total precision and recall
+            print(" Precision: " + str(precision) + "\n")
+            print(" Recall:  "  +  str(recall) + "\n") 
 
 
-        recalls_levels = np.array([ 0. ,  0.1,  0.2,  0.3,  0.4,  0.5,  0.6,  0.7,  0.8,  0.9,  1., 1.1 ]) 
+            true_positives = 0
+            false_positives = 0
+            recall = []
+            precision = []
+            for doc in ranking:
+               if str(doc[0]) in relevants_docs_query[query_id]: # position 3 indicates document ID
+                    true_positives += 1
+               else:
+                    false_positives += 1
 
-        interpolated_precisions = self.interpolate_precisions(recall,precision,recalls_levels)
+               recall.append(self.get_recall(true_positives,len(relevants_docs_query[query_id])))
+               precision.append(self.get_precision(true_positives,false_positives))
 
-        self.plot_results(recalls_levels, interpolated_precisions)
+
+            recalls_levels = np.array([ 0. ,  0.1,  0.2,  0.3,  0.4,  0.5,  0.6,  0.7,  0.8,  0.9,  1. ]) 
+
+            interpolated_precisions = self.interpolate_precisions(recall,precision,recalls_levels)
+            self.plot_results(recalls_levels, interpolated_precisions)
+        else: # Show the final results
+            plot.show()
+            plot.close()
                
         return 
 
@@ -136,9 +140,9 @@ class IREvaluator(object):
         i = 0
         while i < len(precisions):
             # use the max precision obtained for the topic for any actual recall level greater than or equal the recall_levels
-            recalls_inter = np.where((recalls[i] >= recalls_levels) == True)[0]
+            recalls_inter = np.where((recalls[i] > recalls_levels) == True)[0]
             for recall_id in recalls_inter:
-                if precisions[i] >= precisions_interpolated[i, recall_id]:
+                if precisions[i] > precisions_interpolated[i, recall_id]:
                    precisions_interpolated[i, recall_id] = precisions[i]
             i += 1
 
@@ -156,16 +160,6 @@ class IREvaluator(object):
         plot.xlabel('recall')
         plot.ylabel('precision')       
         plot.draw()
-
-        path_save = raw_input("Please, provide the path where the results should be saved \n")
-        if len(path_save) >0: 
-            if os.path.exists(path_save):
-               pp = PdfPages(path_save)
-               plot.savefig(pp, format='pdf')
-               pp.savefig()
-            else:
-               os.makedirs(path_save)
-
-        #show results
-        plot.show()
-        plot.close()
+        
+        plot.title('P/R curves')
+   

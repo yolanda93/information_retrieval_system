@@ -45,6 +45,58 @@ def create_ir_system(irmodel_choice,corpus,query):
     elif irmodel_choice == 7:
        return ir_system.IR_LogEntropyModel(corpus,query)
 
+#################################################################################
+## @brief   execute_IRsystem_prompt
+#  @details This method is used to interact with the user to execute their preferences  
+#################################################################################  
+def execute_IRsystem_prompt(corpus_text,query_text):
+
+    print("\n The available models are: \n 0:Boolean\n 1:TF\n 2:TF-IDF\n 3:LDA\n 4:LDA Multicore\n 5:LSI\n 6:RP\n 7:LogEntropyModel\n \n")
+    irmodel_choice = raw_input("Please, choose an information retrieval model by entering the id of the model:\n") 
+
+    ir = create_ir_system(int(irmodel_choice),corpus_text,query_text)
+      
+    irevaluator_choice = raw_input("Do you want to execute the performance evaluation of the IR system selected (YES/NO)? \n")
+   
+    if((irevaluator_choice=="YES") | (irevaluator_choice=="yes") ):
+       relevances_input = raw_input("Write the directory path with the document relevances:\n") 
+       with open(relevances_input, 'rb') as csvfile:
+            spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+            relevances=[]
+            for row in spamreader:
+                relevances.append(row)
+
+       ir_evaluator.IREvaluator(relevances,ir.ranking_query,True)
+
+    continue_choice = raw_input("Do you want to execute another IR model (YES/NO)? \n")
+
+    if((continue_choice=="YES") | (continue_choice=="yes")):
+         execute_IRsystem_prompt(corpus_text,query_text) # Call the method recursively
+    else: 
+         ir_evaluator.IREvaluator(relevances,ir.ranking_query,False)
+ 
+#################################################################################
+## @brief   execute_Rocchio_prompt
+#  @details This method is used to interact with the user to execute the rocchio 
+#           algorithm evaluation  
+#################################################################################               
+def execute_Rocchio_prompt():
+     rocchio_choice = raw_input("Do you want to execute the rocchio algorithm optimization (YES/NO)? \n")
+     if((rocchio_choice=="YES" ) | (irevaluator_choice=="yes")):
+         print(" Executing Rocchio Algorithm")
+         # The user chooses the X (e.g. X=20) first documents in the ranking and marks them as being relevant or non relevant according to the relevance assessments in MED.REL
+         user_improvement = raw_input("Please, choose the X (e.g. X=20) first documents in the ranking and marks them as being relevant or non relevant according to the relevance assessments in MED.REL  \n")
+         relevance_judgments = dict();
+         for doc in ir.ranking_query[1][0:19]: # update the first 20 docs in the ranking 
+             relevance_judgments[doc] = raw_input("Is relevant the document ID "  + str(doc[0]) +  " (Y/N)?")
+         #5) According these relevance judgements, the system updates the original query based on Rocchio's formula.
+   
+         #6) The system launchs the new query and presents a new ranking.
+
+         #7) A new P/R curve is generated and compared to the previous one. Is the system improving in precision and/or recall?
+
+         #8) While not satisfied goto 4
+
 ####################################################################################################################### 
 ## @brief The main function that enables the user to launch queries
 ####################################################################################################################### 
@@ -56,44 +108,12 @@ if __name__ == '__main__':
       print("------------ Subject: Information Extraction, Retrieval and Intregation\n")
       print("------------ Author:  Yolanda de la Hoz Simon\n")
       print("--------------------------------------------------------\n")
-
+      
       corpus_input = raw_input("Write a text or enter the corpus path:\n") 
       corpus_text=preprocess_userinput(corpus_input)
     
       query_input = raw_input("Write a query or enter a document path with a set of queries:\n") 
       query_text=preprocess_userinput(query_input)
 
-    
-      print("\n The available models are: \n 0:Boolean\n 1:TF\n 2:TF-IDF\n 3:LDA\n 4:LDA Multicore\n 5:LSI\n 6:RP\n 7:LogEntropyModel\n \n")
-      irmodel_choice = raw_input("Please, choose an information retrieval model by entering the id of the model:\n") 
-
-      ir = create_ir_system(int(irmodel_choice),corpus_text,query_text)
-      
-      irevaluator_choice = raw_input("Do you want to execute the performance evaluation of the IR system selected (YES/NO)? \n")
-   
-      if((irevaluator_choice=="YES") | (irevaluator_choice=="yes") ):
-         relevances_input = raw_input("Write the directory path with the document relevances:\n") 
-         with open(relevances_input, 'rb') as csvfile:
-              spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
-              relevances=[]
-              for row in spamreader:
-                  relevances.append(row)
-
-         ir_evaluator.IREvaluator(relevances,ir.ranking_query)
-      
-     
-      rocchio_choice = raw_input("Do you want to execute the rocchio algorithm optimization (YES/NO)? \n")
-      if( (rocchio_choice=="YES" ) | (irevaluator_choice=="yes") ):
-         print(" Executing Rocchio Algorithm")
-         # The user chooses the X (e.g. X=20) first documents in the ranking and marks them as being relevant or non relevant according to the relevance assessments in MED.REL
-         user_improvement = raw_input("Please, choose the X (e.g. X=20) first documents in the ranking and marks them as being relevant or non relevant according to the relevance assessments in MED.REL  \n")
-         relevance_judgments = dict();
-         for doc in ir.ranking_query[1][0:19]: # update the first 20 docs in the ranking 
-             relevance_judgments[doc] = raw_input("Is relevant the document ID "  + str(doc[0]) +  " (Y/N)?")
-         #5) According these relevance judgements, the system updates the original query based on Rocchio's formula.
-    
-         #6) The system launchs the new query and presents a new ranking.
-
-         #7) A new P/R curve is generated and compared to the previous one. Is the system improving in precision and/or recall?
-
-         #8) While not satisfied goto 4
+      execute_IRsystem_prompt(corpus_text,query_text)
+      execute_Rocchio_prompt()
