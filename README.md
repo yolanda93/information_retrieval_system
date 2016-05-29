@@ -11,15 +11,21 @@ The program supplies an entry point to enable the user to launch queries to the 
 
 Methods used to build the vectors:
 
-(1) Standard Boolean Model
+(0)  Standard Boolean Boolean 
 
-(2) TF weights
+(1) TF weights
 
-(3) TF-IDF weights
+(2) TF-IDF weights
 
-(4) Latent Semantic Indexing
+(3) Latent Dirichlet Allocation
 
-(5) Latent Dirichlet Allocation
+(4) Latent Dirichlet Allocation Multicore
+
+(5) Latent Semantic Indexing
+
+(6) Random Projections 
+
+(7) Log Entropy Model
 
 
 ### Usage:
