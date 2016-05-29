@@ -82,12 +82,12 @@ class IRSystem(object):
     #  @param   corpus Set of documents to be processed.
     #  @param   q Query, a document with the set of relevance words to the user.
     #################################################################################   
-    def ranking_function(self,corpus, q, query_id, is_TF):
-        model, dictionary = self.create_documents_view(corpus)
+    def ranking_function(self,corpus, q, query_id, mode):
+        model, dictionary = self.create_documents_view(corpus, mode)
         loaded_corpus = corpora.MmCorpus('vsm_docs.mm')
         index = similarities.MatrixSimilarity(loaded_corpus, num_features=len(dictionary))
         vq=self.create_query_view(q,dictionary)
-        if (is_TF):
+        if (mode == 1):
            self.query_weight  = [(w[0], 1 + np.log2(w[1])) for w in vq]
         else:
             self.query_weight = model[vq]
@@ -96,26 +96,45 @@ class IRSystem(object):
         self.ranking_query[query_id]=ranking # store the ranking of the query in a dict
         for doc, score in ranking:
             print ("[ Score = " + "%.3f" % round(score, 3) + "] " + corpus[doc]);
+      
+    #################################################################################
+    ## @brief   create_query_view
+    #  @details This method preprocess the query written in NL to build the query view
+    #  @param   query Query written in Natural Language
+    #################################################################################  
+    def create_query_view(self,query,dictionary):
+        pq = self.preprocess_document(query)
+        vq = dictionary.doc2bow(pq)
+        return vq
+
+    #################################################################################
+    ## @brief   create_documents_view
+    #  @details This method preprocess the documents written in NL to build the documents view
+    #  @param   corpus Set of documents to be processed.
+    #################################################################################  
+    def create_documents_view(self,corpus, ir_mode):
+        dictionary,pdocs = self.create_dictionary(corpus)
+        bow = self.docs2bows(corpus, dictionary,pdocs)     
+        loaded_corpus = corpora.MmCorpus('vsm_docs.mm') # Recover the corpus
+
+        if ir_mode == 1:
+             model = [[(w[0], 1 + np.log2(w[1])) for w in v] for v in bow] # TF model
+        elif ir_mode == 2:
+             model = models.TfidfModel(loaded_corpus) # TF IDF model
+        elif ir_mode == 3:
+             model = models.LdaModel(loaded_corpus) # LDA model
+        elif ir_mode == 4:
+             model = models.LdaMulticore(loaded_corpus) # LDA Multicore model
+        elif ir_mode == 5:
+             model = models.LsiModel(loaded_corpus) # LSI model
+        elif ir_mode == 6:
+             model = models.RpModel(loaded_corpus) # RP model
+        elif ir_mode == 7:
+             model = models.LogEntropyModel(loaded_corpus) # LogEntropyModel model
+
+        # tf = corpora.MmCorpus('vsm_docs.mm') # Recover the corpus
         
-
-    #################################################################################
-    ## @brief   create_TF_IDF_model
-    #  @details This method creates a weighted TF_IDF matrix to build the vector.
-    #  @param   corpus Set of documents to be processed.
-    #################################################################################  
-    @abc.abstractmethod  
-    def create_documents_view(self,corpus):
-        return
-
-    #################################################################################
-    ## @brief   create_TF_IDF_model
-    #  @details This method creates a weighted TF_IDF matrix to build the vector.
-    #  @param   corpus Set of documents to be processed.
-    #################################################################################  
-    @abc.abstractmethod  
-    def create_query_view(self,query):
-        return
-
+        return model, dictionary
 
     #################################################################################
     ## @brief   launch_query
@@ -124,131 +143,20 @@ class IRSystem(object):
     #  @param   corpus Set of documents to be processed.
     #  @param   q Query, a document with the set of relevance words to the user.
     #################################################################################   
-    @abc.abstractmethod 
-    def launch_query(self,corpus, q):
+    def query_launcher(self,corpus, queries, mode):
+        query_id=0
+        if isinstance(queries, list): # launch queries
+           for q in queries:
+               print("\n-------------------------->Query = " + q ) 
+               self.ranking_function(corpus,q,query_id,mode)
+               query_id += 1;
+             
+        else:
+            print("\n-------------------------->Query = " + queries ) 
+            self.ranking_function(corpus,queries,1,mode)
         return
 
-class IR_tf_idf(IRSystem):
 
-    def __init__(self,corpus,queries):
-        IRSystem.__init__(self,corpus,queries)
-        print("\n--------------------------Executing TF IDF information retrieval model--------------------------\n")
-        self.ranking_query=dict()
-
-        query_id=0
-        if isinstance(queries, list): # launch queries
-           for q in queries:
-               print("\n-------------------------->Query = " + q ) 
-               self.ranking_function(corpus,q,query_id,False)
-               query_id += 1;
-             
-        else:
-            print("\n-------------------------->Query = " + queries ) 
-            self.ranking_function(corpus,queries,1,False)
-
-    def create_documents_view(self,corpus):
-        dictionary,pdocs = self.create_dictionary(corpus)
-        self.docs2bows(corpus, dictionary,pdocs)
-        loaded_corpus = corpora.MmCorpus('vsm_docs.mm') # Recover the corpus
-        tfidf = models.TfidfModel(loaded_corpus)
-        return tfidf, dictionary
-
-    def create_query_view(self,query,dictionary):
-        pq = self.preprocess_document(query)
-        vq = dictionary.doc2bow(pq)
-        return vq
-
-        
-class IR_Lda(IRSystem):
-
-    def __init__(self,corpus,queries):
-        IRSystem.__init__(self,corpus,queries)
-        print("\n--------------------------Executing LDA information retrieval model--------------------------\n")
-        self.ranking_query=dict()
-
-        query_id=0
-        if isinstance(queries, list): # launch queries
-           for q in queries:
-               print("\n-------------------------->Query = " + q ) 
-               self.ranking_function(corpus,q,query_id,False)
-               query_id += 1;
-             
-        else:
-            print("\n-------------------------->Query = " + queries ) 
-            self.ranking_function(corpus,queries,1,False)
-
-    def create_documents_view(self,corpus):
-        dictionary,pdocs = self.create_dictionary(corpus)
-        self.docs2bows(corpus, dictionary,pdocs)
-        loaded_corpus = corpora.MmCorpus('vsm_docs.mm') # Recover the corpus
-        lda = models.LdaModel(loaded_corpus)
-        return lda, dictionary
-
-    def create_query_view(self,query,dictionary):
-        pq = self.preprocess_document(query)
-        vq = dictionary.doc2bow(pq)
-        return vq
- 
-class IR_Lsi(IRSystem):
-
-    def __init__(self,corpus,queries):
-        IRSystem.__init__(self,corpus,queries)
-        print("\n--------------------------Executing LSI information retrieval model--------------------------\n")
-        self.ranking_query=dict()
-
-        query_id=0
-        if isinstance(queries, list): # launch queries
-           for q in queries:
-               print("\n-------------------------->Query = " + q ) 
-               self.ranking_function(corpus,q,query_id,False)
-               query_id += 1;
-             
-        else:
-            print("\n-------------------------->Query = " + queries ) 
-            self.ranking_function(corpus,queries,1,False)
-
-    def create_documents_view(self,corpus):
-        dictionary,pdocs = self.create_dictionary(corpus)
-        self.docs2bows(corpus, dictionary,pdocs)
-        loaded_corpus = corpora.MmCorpus('vsm_docs.mm') # Recover the corpus
-        lsi = models.LsiModel(loaded_corpus)
-        return lsi, dictionary
-
-    def create_query_view(self,query,dictionary):
-        pq = self.preprocess_document(query)
-        vq = dictionary.doc2bow(pq)
-        return vq
-               
-                   
-class IR_tf(IRSystem):
-
- def __init__(self,corpus,queries):
-        IRSystem.__init__(self,corpus,queries)
-        print("\n--------------------------Executing TF information retrieval model--------------------------\n")
-        self.ranking_query=dict()
-
-        query_id=0
-        if isinstance(queries, list): # launch queries
-           for q in queries:
-               print("\n-------------------------->Query = " + q ) 
-               self.ranking_function(corpus,q,query_id,True)
-               query_id += 1;
-        else:
-            print("\n-------------------------->Query = " + queries ) 
-            self.ranking_function(corpus,queries,1,True)
-
- def create_documents_view(self,corpus):
-        dictionary,pdocs = self.create_dictionary(corpus)
-        bow = self.docs2bows(corpus, dictionary,pdocs)     
-        tf = [[(w[0], 1 + np.log2(w[1])) for w in v] for v in bow] # TF model
-        # tf = corpora.MmCorpus('vsm_docs.mm') # Recover the corpus
-        loaded_corpus = corpora.MmCorpus('vsm_docs.mm') # Recover the corpus
-        return tf, dictionary
-
- def create_query_view(self,query,dictionary):
-        pq = self.preprocess_document(query)
-        vq = dictionary.doc2bow(pq)
-        return vq
 
 class IRBoolean(IRSystem):
 
@@ -282,13 +190,9 @@ class IRBoolean(IRSystem):
         self.ranking_query[query_id]=dict_matches.items()
         return dict_matches
 
-    def create_documents_view(self,corpus):
+    def preprocess_corpus(self,corpus):
         dictionary,pdocs = self.create_dictionary(corpus)
         return dictionary, pdocs
-
-    def create_query_view(self,query,dictionary):
-        pq = self.preprocess_document(query)
-        return pq
 
     def preprocess_query(self,q):
         text=re.split(r'[^\w\s]',q) # detection of final of the OR operator, stop punctuation 
@@ -303,8 +207,8 @@ class IRBoolean(IRSystem):
         return or_set,and_set
         
     def document_matches(self,corpus, q):
-        dictionary,pdocs = self.create_documents_view(corpus)
-        vq=self.create_query_view(q,dictionary)
+        dictionary,pdocs = self.preprocess_corpus(corpus)
+        vq= self.preprocess_document(q) # preprocess query
         dict_matches=dict((doc,0) for doc in corpus) # Create a dictionary with documents and initial value score 0
         doc_number = 0 
         for doc in pdocs:
@@ -319,7 +223,67 @@ class IRBoolean(IRSystem):
             print("[ Score = " + str(values) + "] ")
             print("Document = " + keys)
           
-    
+################################################ Model in Gensim library ################################################
+
+class IR_tf(IRSystem):
+
+ def __init__(self,corpus,queries):
+        IRSystem.__init__(self,corpus,queries)
+        print("\n--------------------------Executing TF information retrieval model--------------------------\n")
+        self.ranking_query=dict()
+        self.query_launcher(corpus,queries,1)
+
+
+class IR_tf_idf(IRSystem):
+
+    def __init__(self,corpus,queries):
+        IRSystem.__init__(self,corpus,queries)
+        print("\n--------------------------Executing TF IDF information retrieval model--------------------------\n")
+        self.ranking_query=dict()
+        self.query_launcher(corpus,queries,2)
+       
+        
+class IR_Lda(IRSystem):
+
+    def __init__(self,corpus,queries):
+        IRSystem.__init__(self,corpus,queries)
+        print("\n--------------------------Executing LDA information retrieval model--------------------------\n")
+        self.ranking_query=dict()
+        self.query_launcher(corpus,queries,3)
+
+        
+class IR_Lda_Multicore(IRSystem):
+
+    def __init__(self,corpus,queries):
+        IRSystem.__init__(self,corpus,queries)
+        print("\n--------------------------Executing LDA Multicore information retrieval model--------------------------\n")
+        self.ranking_query=dict()
+        self.query_launcher(corpus,queries,4)
+
+class IR_Lsi(IRSystem):
+
+    def __init__(self,corpus,queries):
+        IRSystem.__init__(self,corpus,queries)
+        print("\n--------------------------Executing LSI information retrieval model--------------------------\n")
+        self.ranking_query=dict()
+        self.query_launcher(corpus,queries,5)
+
+
+class IR_Rp(IRSystem):
+
+    def __init__(self,corpus,queries):
+        IRSystem.__init__(self,corpus,queries)
+        print("\n--------------------------Executing Rp information retrieval model--------------------------\n")
+        self.ranking_query=dict()
+        self.query_launcher(corpus,queries,6)
+
+class IR_LogEntropyModel(IRSystem):
+
+    def __init__(self,corpus,queries):
+        IRSystem.__init__(self,corpus,queries)
+        print("\n--------------------------Executing LogEntropyModel information retrieval model--------------------------\n")
+        self.ranking_query=dict()
+        self.query_launcher(corpus,queries,7)    
         
         
              

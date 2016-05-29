@@ -37,7 +37,13 @@ def create_ir_system(irmodel_choice,corpus,query):
     elif irmodel_choice == 3:
        return ir_system.IR_Lda(corpus,query)
     elif irmodel_choice == 4:
+       return ir_system.IR_Lda_Multicore(corpus,query)
+    elif irmodel_choice == 5:
        return ir_system.IR_Lsi(corpus,query)
+    elif irmodel_choice == 6:
+       return ir_system.IR_Rp(corpus,query)
+    elif irmodel_choice == 7:
+       return ir_system.IR_LogEntropyModel(corpus,query)
 
 ####################################################################################################################### 
 ## @brief The main function that enables the user to launch queries
@@ -58,7 +64,7 @@ if __name__ == '__main__':
       query_text=preprocess_userinput(query_input)
 
     
-      print("\n The available models are: \n 0:Boolean\n 1:TF\n 2:TF-IDF\n 3:LDA\n 4:LSI\n \n")
+      print("\n The available models are: \n 0:Boolean\n 1:TF\n 2:TF-IDF\n 3:LDA\n 4:LDA Multicore\n 5:LSI\n 6:RP\n 7:LogEntropyModel\n \n")
       irmodel_choice = raw_input("Please, choose an information retrieval model by entering the id of the model:\n") 
 
       ir = create_ir_system(int(irmodel_choice),corpus_text,query_text)
