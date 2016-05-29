@@ -75,6 +75,28 @@ class IRSystem(object):
         corpora.MmCorpus.serialize('vsm_docs.mm', vectors) # Save the corpus in the Matrix Market format
         return vectors
 
+    #################################################################################
+    ## @brief   ranking_function
+    #  @details This method initializes the class with the parameters introduced by the user
+    #           and execute the query. 
+    #  @param   corpus Set of documents to be processed.
+    #  @param   q Query, a document with the set of relevance words to the user.
+    #################################################################################   
+    def ranking_function(self,corpus, q, query_id, is_TF):
+        model, dictionary = self.create_documents_view(corpus)
+        loaded_corpus = corpora.MmCorpus('vsm_docs.mm')
+        index = similarities.MatrixSimilarity(loaded_corpus, num_features=len(dictionary))
+        vq=self.create_query_view(q,dictionary)
+        if (is_TF):
+           self.query_weight  = [(w[0], 1 + np.log2(w[1])) for w in vq]
+        else:
+            self.query_weight = model[vq]
+        sim = index[self.query_weight]
+        ranking = sorted(enumerate(sim), key=itemgetter(1), reverse=True)
+        self.ranking_query[query_id]=ranking # store the ranking of the query in a dict
+        for doc, score in ranking:
+            print ("[ Score = " + "%.3f" % round(score, 3) + "] " + corpus[doc]);
+        
 
     #################################################################################
     ## @brief   create_TF_IDF_model
@@ -94,16 +116,6 @@ class IRSystem(object):
     def create_query_view(self,query):
         return
 
-    #################################################################################
-    ## @brief   ranking_function
-    #  @details This method initializes the class with the parameters introduced by the user
-    #           and execute the query. 
-    #  @param   corpus Set of documents to be processed.
-    #  @param   q Query, a document with the set of relevance words to the user.
-    #################################################################################   
-    @abc.abstractmethod 
-    def ranking_function(self,corpus, q):
-        return
 
     #################################################################################
     ## @brief   launch_query
@@ -127,12 +139,12 @@ class IR_tf_idf(IRSystem):
         if isinstance(queries, list): # launch queries
            for q in queries:
                print("\n-------------------------->Query = " + q ) 
-               self.ranking_function(corpus,q,query_id)
+               self.ranking_function(corpus,q,query_id,False)
                query_id += 1;
              
         else:
             print("\n-------------------------->Query = " + queries ) 
-            self.ranking_function(corpus,queries,1)
+            self.ranking_function(corpus,queries,1,False)
 
     def create_documents_view(self,corpus):
         dictionary,pdocs = self.create_dictionary(corpus)
@@ -146,19 +158,7 @@ class IR_tf_idf(IRSystem):
         vq = dictionary.doc2bow(pq)
         return vq
 
-    def ranking_function(self,corpus, q, query_id):
-        tfidf, dictionary = self.create_documents_view(corpus)
-        loaded_corpus = corpora.MmCorpus('vsm_docs.mm')
-        index = similarities.MatrixSimilarity(loaded_corpus, num_features=len(dictionary))
-        vq=self.create_query_view(q,dictionary)
-        self.query_weight = tfidf[vq]
-        sim = index[self.query_weight]
-        ranking = sorted(enumerate(sim), key=itemgetter(1), reverse=True)
-        self.ranking_query[query_id]=ranking # store the ranking of the query in a dict
-        for doc, score in ranking:
-            print ("[ Score = " + "%.3f" % round(score, 3) + "] " + corpus[doc]);
         
-
 class IR_Lda(IRSystem):
 
     def __init__(self,corpus,queries):
@@ -170,12 +170,12 @@ class IR_Lda(IRSystem):
         if isinstance(queries, list): # launch queries
            for q in queries:
                print("\n-------------------------->Query = " + q ) 
-               self.ranking_function(corpus,q,query_id)
+               self.ranking_function(corpus,q,query_id,False)
                query_id += 1;
              
         else:
             print("\n-------------------------->Query = " + queries ) 
-            self.ranking_function(corpus,queries,1)
+            self.ranking_function(corpus,queries,1,False)
 
     def create_documents_view(self,corpus):
         dictionary,pdocs = self.create_dictionary(corpus)
@@ -188,19 +188,37 @@ class IR_Lda(IRSystem):
         pq = self.preprocess_document(query)
         vq = dictionary.doc2bow(pq)
         return vq
-
-    def ranking_function(self,corpus, q, query_id):
-        tfidf, dictionary = self.create_documents_view(corpus)
-        loaded_corpus = corpora.MmCorpus('vsm_docs.mm')
-        index = similarities.MatrixSimilarity(loaded_corpus, num_features=len(dictionary))
-        vq=self.create_query_view(q,dictionary)
-        self.query_weight = tfidf[vq]
-        sim = index[self.query_weight]
-        ranking = sorted(enumerate(sim), key=itemgetter(1), reverse=True)
-        self.ranking_query[query_id]=ranking # store the ranking of the query in a dict
-        for doc, score in ranking:
-            print ("[ Score = " + "%.3f" % round(score, 3) + "] " + corpus[doc]);
         
+                   
+class IR_tf(IRSystem):
+
+ def __init__(self,corpus,queries):
+        IRSystem.__init__(self,corpus,queries)
+        print("\n--------------------------Executing TF information retrieval model--------------------------\n")
+        self.ranking_query=dict()
+
+        query_id=0
+        if isinstance(queries, list): # launch queries
+           for q in queries:
+               print("\n-------------------------->Query = " + q ) 
+               self.ranking_function(corpus,q,query_id,True)
+               query_id += 1;
+        else:
+            print("\n-------------------------->Query = " + queries ) 
+            self.ranking_function(corpus,queries,1,True)
+
+ def create_documents_view(self,corpus):
+        dictionary,pdocs = self.create_dictionary(corpus)
+        bow = self.docs2bows(corpus, dictionary,pdocs)     
+        tf = [[(w[0], 1 + np.log2(w[1])) for w in v] for v in bow] # TF model
+        # tf = corpora.MmCorpus('vsm_docs.mm') # Recover the corpus
+        loaded_corpus = corpora.MmCorpus('vsm_docs.mm') # Recover the corpus
+        return tf, dictionary
+
+ def create_query_view(self,query,dictionary):
+        pq = self.preprocess_document(query)
+        vq = dictionary.doc2bow(pq)
+        return vq
 
 class IRBoolean(IRSystem):
 
@@ -226,11 +244,11 @@ class IRBoolean(IRSystem):
     def process_operators(self,corpus,or_set,and_set,query_id):   
         or_list = [val for sublist in or_set for val in sublist]     
         for or_txt in or_list: # assign score 1 to documents that match with either phrase with or
-            dict_matches = self.ranking_function(corpus,or_txt)
+            dict_matches = self.document_matches(corpus,or_txt)
         if len(and_set) > 0: 
           and_list = [val for sublist in and_set for val in sublist]
           and_txt= ', '.join(and_list) # treat the and_set as a single query separated by commas
-          dict_matches =  self.ranking_function(corpus,and_txt)
+          dict_matches =  self.document_matches(corpus,and_txt)
         self.ranking_query[query_id]=dict_matches.items()
         return dict_matches
 
@@ -254,7 +272,7 @@ class IRBoolean(IRSystem):
                and_set.append(txt) # it is an AND operator
         return or_set,and_set
         
-    def ranking_function(self,corpus, q):
+    def document_matches(self,corpus, q):
         dictionary,pdocs = self.create_documents_view(corpus)
         vq=self.create_query_view(q,dictionary)
         dict_matches=dict((doc,0) for doc in corpus) # Create a dictionary with documents and initial value score 0
@@ -266,55 +284,11 @@ class IRBoolean(IRSystem):
             doc_number += 1     
         return dict_matches
       
-
     def print_result(self,dict_matches):
         for keys,values in dict_matches.items():
             print("[ Score = " + str(values) + "] ")
             print("Document = " + keys)
           
-                   
-class IR_tf(IRSystem):
-
- def __init__(self,corpus,queries):
-        IRSystem.__init__(self,corpus,queries)
-        print("\n--------------------------Executing TF information retrieval model--------------------------\n")
-        self.ranking_query=dict()
-
-        query_id=0
-        if isinstance(queries, list): # launch queries
-           for q in queries:
-               print("\n-------------------------->Query = " + q ) 
-               self.ranking_function(corpus,q,query_id)
-               query_id += 1;
-        else:
-            print("\n-------------------------->Query = " + queries ) 
-            self.ranking_function(corpus,queries,1)
-
- def create_documents_view(self,corpus):
-        dictionary,pdocs = self.create_dictionary(corpus)
-        bow = self.docs2bows(corpus, dictionary,pdocs)     
-        tf = [[(w[0], 1 + np.log2(w[1])) for w in v] for v in bow] # TF model
-        # tf = corpora.MmCorpus('vsm_docs.mm') # Recover the corpus
-        loaded_corpus = corpora.MmCorpus('vsm_docs.mm') # Recover the corpus
-        return tf, dictionary
-
- def create_query_view(self,query,dictionary):
-        pq = self.preprocess_document(query)
-        vq = dictionary.doc2bow(pq)
-        return vq
-
- def ranking_function(self,corpus, q,query_id):
-        tf, dictionary = self.create_documents_view(corpus)
-        loaded_corpus = corpora.MmCorpus('vsm_docs.mm')
-        index = similarities.MatrixSimilarity(loaded_corpus, num_features=len(dictionary))
-        vq=self.create_query_view(q,dictionary)
-        self.query_weight  = [(w[0], 1 + np.log2(w[1])) for w in vq]
-        sim = index[self.query_weight]
-        ranking = sorted(enumerate(sim), key=itemgetter(1), reverse=True)
-        self.ranking_query[query_id]=ranking # store the ranking of the query in a dict
-        for doc, score in ranking:
-            print ("[ Score = " + "%.3f" % round(score, 3) + "] " + corpus[doc]);
-
     
         
         
