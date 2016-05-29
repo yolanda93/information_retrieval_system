@@ -159,6 +159,49 @@ class IR_tf_idf(IRSystem):
             print ("[ Score = " + "%.3f" % round(score, 3) + "] " + corpus[doc]);
         
 
+class IR_Lda(IRSystem):
+
+    def __init__(self,corpus,queries):
+        IRSystem.__init__(self,corpus,queries)
+        print("\n--------------------------Executing LDA information retrieval model--------------------------\n")
+        self.ranking_query=dict()
+
+        query_id=0
+        if isinstance(queries, list): # launch queries
+           for q in queries:
+               print("\n-------------------------->Query = " + q ) 
+               self.ranking_function(corpus,q,query_id)
+               query_id += 1;
+             
+        else:
+            print("\n-------------------------->Query = " + queries ) 
+            self.ranking_function(corpus,queries,1)
+
+    def create_documents_view(self,corpus):
+        dictionary,pdocs = self.create_dictionary(corpus)
+        self.docs2bows(corpus, dictionary,pdocs)
+        loaded_corpus = corpora.MmCorpus('vsm_docs.mm') # Recover the corpus
+        tfidf = models.LdaModel(loaded_corpus)
+        return tfidf, dictionary
+
+    def create_query_view(self,query,dictionary):
+        pq = self.preprocess_document(query)
+        vq = dictionary.doc2bow(pq)
+        return vq
+
+    def ranking_function(self,corpus, q, query_id):
+        tfidf, dictionary = self.create_documents_view(corpus)
+        loaded_corpus = corpora.MmCorpus('vsm_docs.mm')
+        index = similarities.MatrixSimilarity(loaded_corpus, num_features=len(dictionary))
+        vq=self.create_query_view(q,dictionary)
+        self.query_weight = tfidf[vq]
+        sim = index[self.query_weight]
+        ranking = sorted(enumerate(sim), key=itemgetter(1), reverse=True)
+        self.ranking_query[query_id]=ranking # store the ranking of the query in a dict
+        for doc, score in ranking:
+            print ("[ Score = " + "%.3f" % round(score, 3) + "] " + corpus[doc]);
+        
+
 class IRBoolean(IRSystem):
 
     def __init__(self,corpus,queries):
@@ -253,7 +296,6 @@ class IR_tf(IRSystem):
         tf = [[(w[0], 1 + np.log2(w[1])) for w in v] for v in bow] # TF model
         # tf = corpora.MmCorpus('vsm_docs.mm') # Recover the corpus
         loaded_corpus = corpora.MmCorpus('vsm_docs.mm') # Recover the corpus
-        tfidf = models.TfidfModel(loaded_corpus)
         return tf, dictionary
 
  def create_query_view(self,query,dictionary):
