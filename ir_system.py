@@ -181,14 +181,44 @@ class IR_Lda(IRSystem):
         dictionary,pdocs = self.create_dictionary(corpus)
         self.docs2bows(corpus, dictionary,pdocs)
         loaded_corpus = corpora.MmCorpus('vsm_docs.mm') # Recover the corpus
-        tfidf = models.LdaModel(loaded_corpus)
-        return tfidf, dictionary
+        lda = models.LdaModel(loaded_corpus)
+        return lda, dictionary
 
     def create_query_view(self,query,dictionary):
         pq = self.preprocess_document(query)
         vq = dictionary.doc2bow(pq)
         return vq
-        
+ 
+class IR_Lsi(IRSystem):
+
+    def __init__(self,corpus,queries):
+        IRSystem.__init__(self,corpus,queries)
+        print("\n--------------------------Executing LSI information retrieval model--------------------------\n")
+        self.ranking_query=dict()
+
+        query_id=0
+        if isinstance(queries, list): # launch queries
+           for q in queries:
+               print("\n-------------------------->Query = " + q ) 
+               self.ranking_function(corpus,q,query_id,False)
+               query_id += 1;
+             
+        else:
+            print("\n-------------------------->Query = " + queries ) 
+            self.ranking_function(corpus,queries,1,False)
+
+    def create_documents_view(self,corpus):
+        dictionary,pdocs = self.create_dictionary(corpus)
+        self.docs2bows(corpus, dictionary,pdocs)
+        loaded_corpus = corpora.MmCorpus('vsm_docs.mm') # Recover the corpus
+        lsi = models.LsiModel(loaded_corpus)
+        return lsi, dictionary
+
+    def create_query_view(self,query,dictionary):
+        pq = self.preprocess_document(query)
+        vq = dictionary.doc2bow(pq)
+        return vq
+               
                    
 class IR_tf(IRSystem):
 

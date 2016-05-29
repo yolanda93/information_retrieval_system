@@ -36,7 +36,8 @@ def create_ir_system(irmodel_choice,corpus,query):
        return ir_system.IR_tf_idf(corpus,query)
     elif irmodel_choice == 3:
        return ir_system.IR_Lda(corpus,query)
-
+    elif irmodel_choice == 4:
+       return ir_system.IR_Lsi(corpus,query)
 
 ####################################################################################################################### 
 ## @brief The main function that enables the user to launch queries
@@ -57,7 +58,7 @@ if __name__ == '__main__':
       query_text=preprocess_userinput(query_input)
 
     
-      print("\n The available models are: \n 0:Boolean\n 1:TF\n 2:TF-IDF\n 3:LDA\n \n")
+      print("\n The available models are: \n 0:Boolean\n 1:TF\n 2:TF-IDF\n 3:LDA\n 4:LSI\n \n")
       irmodel_choice = raw_input("Please, choose an information retrieval model by entering the id of the model:\n") 
 
       ir = create_ir_system(int(irmodel_choice),corpus_text,query_text)
