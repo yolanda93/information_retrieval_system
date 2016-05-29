@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import ir_system    
+import rocchio_algorithm
 import ir_evaluator
 import sys
 import re
@@ -74,28 +75,36 @@ def execute_IRsystem_prompt(corpus_text,query_text):
          execute_IRsystem_prompt(corpus_text,query_text) # Call the method recursively
     else: 
          ir_evaluator.IREvaluator(relevances,ir.ranking_query,False)
+    return ir
  
 #################################################################################
 ## @brief   execute_Rocchio_prompt
 #  @details This method is used to interact with the user to execute the rocchio 
 #           algorithm evaluation  
 #################################################################################               
-def execute_Rocchio_prompt():
+def execute_Rocchio_prompt(query_text,corpus_text,ir):
      rocchio_choice = raw_input("Do you want to execute the rocchio algorithm optimization (YES/NO)? \n")
-     if((rocchio_choice=="YES" ) | (irevaluator_choice=="yes")):
+     if((rocchio_choice=="YES" ) | (rocchio_choice=="yes")):
          print(" Executing Rocchio Algorithm")
          # The user chooses the X (e.g. X=20) first documents in the ranking and marks them as being relevant or non relevant according to the relevance assessments in MED.REL
          user_improvement = raw_input("Please, choose the X (e.g. X=20) first documents in the ranking and marks them as being relevant or non relevant according to the relevance assessments in MED.REL  \n")
-         relevance_judgments = dict();
-         for doc in ir.ranking_query[1][0:19]: # update the first 20 docs in the ranking 
-             relevance_judgments[doc] = raw_input("Is relevant the document ID "  + str(doc[0]) +  " (Y/N)?")
+         
+         
+         rankings = [list(i) for i in ir.ranking_query[1]] # convert to a list
+         pos=0
+         while pos < 20:
+              answer = raw_input("Is relevant the document ID "  + str(rankings[pos][0]) +  " (Y/N)?")
+              if (answer == 'y') or (answer == 'Y'):
+                 rankings[pos][1] = 1      
+              pos += 1          
          #5) According these relevance judgements, the system updates the original query based on Rocchio's formula.
-   
+         rocchio = rocchio_algorithm.RocchioAlgorithm(query_text,corpus_text,rankings,ir)
          #6) The system launchs the new query and presents a new ranking.
-
+         ir = execute_IRsystem_prompt(corpus_text,rocchio.new_query)
          #7) A new P/R curve is generated and compared to the previous one. Is the system improving in precision and/or recall?
 
          #8) While not satisfied goto 4
+     return 
 
 ####################################################################################################################### 
 ## @brief The main function that enables the user to launch queries
@@ -115,5 +124,6 @@ if __name__ == '__main__':
       query_input = raw_input("Write a query or enter a document path with a set of queries:\n") 
       query_text=preprocess_userinput(query_input)
 
-      execute_IRsystem_prompt(corpus_text,query_text)
-      execute_Rocchio_prompt()
+      ir = execute_IRsystem_prompt(corpus_text,query_text)
+      rocchio = execute_Rocchio_prompt(query_text,corpus_text,ir)
+

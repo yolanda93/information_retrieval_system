@@ -160,6 +160,5 @@ class IREvaluator(object):
         plot.xlabel('recall')
         plot.ylabel('precision')       
         plot.draw()
-        
         plot.title('P/R curves')
    
