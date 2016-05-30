@@ -26,11 +26,13 @@ class RocchioAlgorithm(object):
 
         term1 = [alpha*i for i in queryVector]
 
+        sumRelDocs=0
         for i in relDocs:
-            sumRelDocs  += i
+            sumRelDocs  += i[1]
 
+        sumNonRelDocs=0
         for j in nonRelDocs:
-            sumNonRelDocs  += j
+            sumNonRelDocs  += j[1]
 
         term2 = [float(beta)/len(relDocs) * sumRelDocs]
         term3 = [-float(gamma)/len(nonRelDocs) * sumNonRelDocs]
@@ -39,7 +41,7 @@ class RocchioAlgorithm(object):
                       
         pos=0   
         while pos < len(term1):
-              term1[pos][1] = term1[pos][1] + term2 + term3
+              term1[pos][1] = term1[pos][1] + term2[0] + term3[0]
               pos += 1  
         return term1
 	    # modQueryVec = [sum(term1) for wordCol in zip(term1,term2,term3)]

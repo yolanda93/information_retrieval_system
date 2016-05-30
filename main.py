@@ -85,7 +85,7 @@ def execute_IRsystem_prompt(corpus_text,query_text):
 def execute_Rocchio_prompt(query_text,corpus_text,ir):
      rocchio_choice = raw_input("Do you want to execute the rocchio algorithm optimization (YES/NO)? \n")
      if((rocchio_choice=="YES" ) | (rocchio_choice=="yes")):
-         print(" Executing Rocchio Algorithm")
+         print("------------Executing Rocchio Algorithm------------")
          # The user chooses the X (e.g. X=20) first documents in the ranking and marks them as being relevant or non relevant according to the relevance assessments in MED.REL
          user_improvement = raw_input("Please, choose the X (e.g. X=20) first documents in the ranking and marks them as being relevant or non relevant according to the relevance assessments in MED.REL  \n")
          
@@ -100,10 +100,11 @@ def execute_Rocchio_prompt(query_text,corpus_text,ir):
          #5) According these relevance judgements, the system updates the original query based on Rocchio's formula.
          rocchio = rocchio_algorithm.RocchioAlgorithm(query_text,corpus_text,rankings,ir)
          #6) The system launchs the new query and presents a new ranking.
-         ir = execute_IRsystem_prompt(corpus_text,rocchio.new_query)
-         #7) A new P/R curve is generated and compared to the previous one. Is the system improving in precision and/or recall?
-
-         #8) While not satisfied goto 4
+         #7) A new P/R curve is generated and compared to the previous one. 
+         answer = 'y'
+         while ((answer == 'y') or (answer == 'Y')):                
+                 ir = execute_IRsystem_prompt(corpus_text,rocchio.new_query)
+                 answer = raw_input("Do you want to execute again the rocchio optimization algorithm (Y/N)?") # desired recall and precision to be chosen by the user
      return 
 
 ####################################################################################################################### 
