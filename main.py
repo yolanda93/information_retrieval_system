@@ -74,7 +74,7 @@ def execute_IRsystem_prompt(corpus_text,query_text,only_query_id):
     continue_choice = raw_input("Do you want to execute another IR model (YES/NO)? \n")
 
     if((continue_choice=="YES") | (continue_choice=="yes")):
-         execute_IRsystem_prompt(corpus_text,query_text) # Call the method recursively
+         execute_IRsystem_prompt(corpus_text,query_text,only_query_id) # Call the method recursively
     else: 
          ir_evaluator.IREvaluator(relevances,ir.ranking_query,False,only_query_id)
     return ir
