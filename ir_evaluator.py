@@ -11,29 +11,31 @@ class IREvaluator(object):
     #           relevance_docs It contains relevance assessments for each query in MED.QRY
     #           ranking_query  
     #################################################################################    
-    def __init__(self,relevance_docs,ranking_query,continue_eval):
+    def __init__(self,relevance_docs,ranking_query,continue_eval,only_query_id):
         self.relevance_docs=relevance_docs        
         self.continue_eval=continue_eval
-        relevants_docs_query=self.get_total_relevant_docs()
        
         query_id=1
         if len(ranking_query) >1: 
            for q in ranking_query-1:
                print("\n-------------------------->Query = " + str(query_id) ) 
+               relevants_docs_query=self.get_total_relevant_docs(query_id)
                ranking_query[q] = [ranking_query[q][i] for i in range(len(ranking_query[q])) if ranking_query[q][i][1] > 0.0] 
                self.evaluate_query(ranking_query[q],relevants_docs_query,query_id)
                query_id += 1
         else:
-            print("\n-------------------------->Query = " + str(query_id) ) 
+            print("\n-------------------------->Query = " + str(only_query_id) ) 
+            relevants_docs_query=self.get_total_relevant_docs(only_query_id)
             ranking_query[1] = [ranking_query[1][i] for i in range(len(ranking_query[1])) if ranking_query[1][i][1] > 0.0] 
-            self.evaluate_query(ranking_query[1],relevants_docs_query,1)
+            self.evaluate_query(ranking_query[1],relevants_docs_query,only_query_id)
 
 
    #################################################################################
     ## @brief   evaluate_query
-    #  @details This method computes the precision and recall
+    #  @details This method computes the precision and recall for the provided query
     #  @param   ranking Ranking result for each query
     #  @param   relevance_docs It contains relevance assessments for each query in MED.QRY
+    #  @param   query_id Query id
     #################################################################################    
     def evaluate_query(self,ranking,relevants_docs_query,query_id):
         if(self.continue_eval):
@@ -45,7 +47,6 @@ class IREvaluator(object):
             # compute total precision and recall
             print(" Precision: " + str(precision) + "\n")
             print(" Recall:  "  +  str(recall) + "\n") 
-
 
             true_positives = 0
             false_positives = 0
@@ -93,17 +94,13 @@ class IREvaluator(object):
     #  @details This method returns the total relevant documents for a query.
     #  @param   relevants_docs_query is a dictionary that stores the query key and the relevant documents IDs
     #################################################################################    
-    def get_total_relevant_docs(self): 
-        query_id=1 
+    def get_total_relevant_docs(self,query_id): 
         relevants_query=dict()
         relevants_docs_query=[] # stores the relevant docs for a query
         for doc in self.relevance_docs:
-            if(int(doc[0])==query_id): # the position 0 contains the query ID
+            if(doc[0]==query_id): # the position 0 contains the query ID
               relevants_docs_query.append(doc[2]) # position 3 indicates document ID
-            if(int(doc[0])>query_id): # relevance docs csv are ordered, we stop to iterate 
-              relevants_query[query_id]=relevants_docs_query  
-              relevants_docs_query=[] # clean     
-              query_id += 1   
+        relevants_query[query_id]=relevants_docs_query 
         return relevants_query
 
 

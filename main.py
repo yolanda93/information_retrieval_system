@@ -20,7 +20,9 @@ def preprocess_userinput(user_input):
        except IOError:
             print user_input + " - No such file or directory"
             sys.exit(0)
-    return user_input # the user has provided a query or a text    
+    else: 
+       only_query_id = raw_input("Write the ID of the query provided:\n")  # the user has provided a query or a text    
+       return user_input, only_query_id
 
 #################################################################################
 ## @brief   create_ir_system
@@ -50,7 +52,7 @@ def create_ir_system(irmodel_choice,corpus,query):
 ## @brief   execute_IRsystem_prompt
 #  @details This method is used to interact with the user to execute their preferences  
 #################################################################################  
-def execute_IRsystem_prompt(corpus_text,query_text):
+def execute_IRsystem_prompt(corpus_text,query_text,only_query_id):
 
     print("\n The available models are: \n 0:Boolean\n 1:TF\n 2:TF-IDF\n 3:LDA\n 4:LDA Multicore\n 5:LSI\n 6:RP\n 7:LogEntropyModel\n \n")
     irmodel_choice = raw_input("Please, choose an information retrieval model by entering the id of the model:\n") 
@@ -67,14 +69,14 @@ def execute_IRsystem_prompt(corpus_text,query_text):
             for row in spamreader:
                 relevances.append(row)
 
-       ir_evaluator.IREvaluator(relevances,ir.ranking_query,True)
+       ir_evaluator.IREvaluator(relevances,ir.ranking_query,True,only_query_id)
 
     continue_choice = raw_input("Do you want to execute another IR model (YES/NO)? \n")
 
     if((continue_choice=="YES") | (continue_choice=="yes")):
          execute_IRsystem_prompt(corpus_text,query_text) # Call the method recursively
     else: 
-         ir_evaluator.IREvaluator(relevances,ir.ranking_query,False)
+         ir_evaluator.IREvaluator(relevances,ir.ranking_query,False,only_query_id)
     return ir
  
 #################################################################################
@@ -123,8 +125,8 @@ if __name__ == '__main__':
       corpus_text=preprocess_userinput(corpus_input)
     
       query_input = raw_input("Write a query or enter a document path with a set of queries:\n") 
-      query_text=preprocess_userinput(query_input)
+      query_text, only_query_id=preprocess_userinput(query_input)
 
-      ir = execute_IRsystem_prompt(corpus_text,query_text)
+      ir = execute_IRsystem_prompt(corpus_text,query_text,only_query_id)
       rocchio = execute_Rocchio_prompt(query_text,corpus_text,ir)
 
