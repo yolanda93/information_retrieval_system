@@ -15,15 +15,17 @@ class IREvaluator(object):
         self.relevance_docs=relevance_docs        
         self.continue_eval=continue_eval
         relevants_docs_query=self.get_total_relevant_docs()
-      
+       
         query_id=1
         if len(ranking_query) >1: 
            for q in ranking_query-1:
                print("\n-------------------------->Query = " + str(query_id) ) 
+               ranking_query[q] = [ranking_query[q][i] for i in range(len(ranking_query[q])) if ranking_query[q][i][1] > 0.0] 
                self.evaluate_query(ranking_query[q],relevants_docs_query,query_id)
                query_id += 1
         else:
             print("\n-------------------------->Query = " + str(query_id) ) 
+            ranking_query[1] = [ranking_query[1][i] for i in range(len(ranking_query[1])) if ranking_query[1][i][1] > 0.0] 
             self.evaluate_query(ranking_query[1],relevants_docs_query,1)
 
 
