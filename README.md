@@ -1,12 +1,12 @@
 # Information Retrieval System 
    
-The goal of this project is to implement a basic information retrieval system using Python, NLTK and GenSIM. 
+The goal of this project is to implement an information retrieval system using Python, NLTK and GenSIM. 
 
 To build this system, it is provided a plain text MED.ALL that contains many documents related to life sciences. Each document is composed by 2 fields (.I and .W). The field .I contains a numeric ID that identifies the document, while the field .W contains the text of the document.
 
-For this system is created at least 3 different versions using different weights for building the vectors representing documents and queries.
+For this system is created 7 different versions of the IR using different weights for building the vectors representing documents and queries. 
 
-The program supplies an entry point to enable the user to launch queries to the system.
+The program supplies an entry point to enable the user to launch queries and choose the desired IR system with the implemented models.
 
 
 Methods used to build the vectors:
