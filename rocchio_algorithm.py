@@ -3,7 +3,8 @@ class RocchioAlgorithm(object):
     #################################################################################
     ## @brief   Constructor
     #  @details This method initializes the class with:
-    #           user_improvement ID's of the relevant documents
+    #           corpus set of the documents to be searched
+    #           relevance_judgments ID's of the relevant documents
     #################################################################################    
     def __init__(self,query,corpus,relevance_judgments,ir):
         dictionary,pdocs = ir.create_dictionary(corpus)

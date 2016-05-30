@@ -84,7 +84,7 @@ def execute_IRsystem_prompt(corpus_text,query_text,only_query_id):
 #  @details This method is used to interact with the user to execute the rocchio 
 #           algorithm evaluation  
 #################################################################################               
-def execute_Rocchio_prompt(query_text,corpus_text,ir):
+def execute_Rocchio_prompt(query_text,corpus_text,ir,only_query_id):
      rocchio_choice = raw_input("Do you want to execute the rocchio algorithm optimization (YES/NO)? \n")
      if((rocchio_choice=="YES" ) | (rocchio_choice=="yes")):
          print("------------Executing Rocchio Algorithm------------")
@@ -105,7 +105,7 @@ def execute_Rocchio_prompt(query_text,corpus_text,ir):
          #7) A new P/R curve is generated and compared to the previous one. 
          answer = 'y'
          while ((answer == 'y') or (answer == 'Y')):                
-                 ir = execute_IRsystem_prompt(corpus_text,rocchio.new_query)
+                 ir = execute_IRsystem_prompt(corpus_text,rocchio.new_query,only_query_id)
                  answer = raw_input("Do you want to execute again the rocchio optimization algorithm (Y/N)?") # desired recall and precision to be chosen by the user
      return 
 
@@ -128,5 +128,5 @@ if __name__ == '__main__':
       query_text, only_query_id=preprocess_userinput(query_input)
 
       ir = execute_IRsystem_prompt(corpus_text,query_text,only_query_id)
-      rocchio = execute_Rocchio_prompt(query_text,corpus_text,ir)
+      rocchio = execute_Rocchio_prompt(query_text,corpus_text,ir,only_query_id)
 

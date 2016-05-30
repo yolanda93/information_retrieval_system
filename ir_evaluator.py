@@ -9,7 +9,7 @@ class IREvaluator(object):
     ## @brief   Constructor
     #  @details This method initializes the class with:
     #           relevance_docs It contains relevance assessments for each query in MED.QRY
-    #           ranking_query  
+    #           ranking_query  The ranking documents for each query
     #################################################################################    
     def __init__(self,relevance_docs,ranking_query,continue_eval,only_query_id):
         self.relevance_docs=relevance_docs        
